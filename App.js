@@ -1,172 +1,57 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, FlatList, StyleSheet, ScrollView } from 'react-native';
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
-export default function App() {
-  const [mealPlan, setMealPlan] = useState([]);
-  const [recipes, setRecipes] = useState([]);
-  const [shoppingList, setShoppingList] = useState([]);
-  const [calories, setCalories] = useState(0);
-  
-  const [meal, setMeal] = useState({ name: '', ingredients: '' });
-  const [newRecipe, setNewRecipe] = useState({ name: '', ingredients: '', instructions: '' });
-  const [mealCalories, setMealCalories] = useState('');
+// Import screens
+import GoalScreen from './screens/GoalScreen';
+import GenderScreen from './screens/GenderScreen';
+import MealPlanScreen from './screens/MealPlanScreen';
+import RecipeLibraryScreen from './screens/RecipeLibraryScreen';
+import ScheduleScreen from './screens/ScheduleScreen';
 
-  const addMealToPlan = () => {
-    setMealPlan([...mealPlan, { ...meal, ingredients: meal.ingredients.split(', ') }]);
-    setMeal({ name: '', ingredients: '' });
-    generateShoppingList();
-  };
+const Stack = createStackNavigator();
+const Tab = createBottomTabNavigator();
 
-  const addRecipe = () => {
-    setRecipes([...recipes, { ...newRecipe, ingredients: newRecipe.ingredients.split(', ') }]);
-    setNewRecipe({ name: '', ingredients: '', instructions: '' });
-  };
-
-  const generateShoppingList = () => {
-    let list = [];
-    mealPlan.forEach(meal => {
-      list = [...list, ...meal.ingredients];
-    });
-    setShoppingList(list);
-  };
-
-  const updateCalories = () => {
-    setCalories(calories + parseInt(mealCalories, 10));
-    setMealCalories('');
-  };
-
+// Main Tab Navigator
+function MainTabs() {
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.header}>Prepper - Meal Planning App</Text>
-    <Text style={styles.header}>(Initial Test Only)</Text>
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName;
 
-      {/* Meal Plan Section */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Create Your Weekly Meal Plan</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Meal Name"
-          value={meal.name}
-          onChangeText={(text) => setMeal({ ...meal, name: text })}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Ingredients (comma separated)"
-          value={meal.ingredients}
-          onChangeText={(text) => setMeal({ ...meal, ingredients: text })}
-        />
-        <Button title="Add Meal" onPress={addMealToPlan} />
-      </View>
+          if (route.name === 'Meal Plan') {
+            iconName = focused ? 'fast-food' : 'fast-food-outline';
+          } else if (route.name === 'Recipe Library') {
+            iconName = focused ? 'book' : 'book-outline';
+          } else if (route.name === 'Schedule') {
+            iconName = focused ? 'calendar' : 'calendar-outline';
+          }
 
-      {/* Recipe Library Section */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Recipe Library</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Recipe Name"
-          value={newRecipe.name}
-          onChangeText={(text) => setNewRecipe({ ...newRecipe, name: text })}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Ingredients (comma separated)"
-          value={newRecipe.ingredients}
-          onChangeText={(text) => setNewRecipe({ ...newRecipe, ingredients: text })}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Instructions"
-          value={newRecipe.instructions}
-          onChangeText={(text) => setNewRecipe({ ...newRecipe, instructions: text })}
-        />
-        <Button title="Add Recipe" onPress={addRecipe} />
-        <FlatList
-          data={recipes}
-          renderItem={({ item }) => (
-            <View style={styles.recipe}>
-              <Text style={styles.recipeText}>{item.name}</Text>
-              <Text>Ingredients: {item.ingredients.join(', ')}</Text>
-              <Text>{item.instructions}</Text>
-            </View>
-          )}
-          keyExtractor={(item, index) => index.toString()}
-        />
-      </View>
-
-      {/* Calorie Tracker Section */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Calorie and Nutrition Tracker</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter Meal Calories"
-          keyboardType="numeric"
-          value={mealCalories}
-          onChangeText={setMealCalories}
-        />
-        <Button title="Add Calories" onPress={updateCalories} />
-        <Text style={styles.text}>Total Calories: {calories}</Text>
-      </View>
-
-      {/* Shopping List Section */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Shopping List</Text>
-        <FlatList
-          data={shoppingList}
-          renderItem={({ item }) => <Text style={styles.text}>{item}</Text>}
-          keyExtractor={(item, index) => index.toString()}
-        />
-      </View>
-    </ScrollView>
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
+        tabBarActiveTintColor: '#6A0DAD',
+        tabBarInactiveTintColor: '#B39DDB',
+      })}
+    >
+      <Tab.Screen name="Meal Plan" component={MealPlanScreen} />
+      <Tab.Screen name="Recipe Library" component={RecipeLibraryScreen} />
+      <Tab.Screen name="Schedule" component={ScheduleScreen} />
+    </Tab.Navigator>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: '#f9f9f9',
-  },
-  header: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-  section: {
-    marginBottom: 20,
-    padding: 15,
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    elevation: 5, // For shadow on Android devices
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  input: {
-    height: 40,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 5,
-    paddingLeft: 10,
-    marginBottom: 10,
-  },
-  button: {
-    marginBottom: 10,
-  },
-  text: {
-    fontSize: 16,
-    color: '#333',
-  },
-  recipe: {
-    marginBottom: 10,
-    padding: 10,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 5,
-  },
-  recipeText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-});
+// Main App Navigation
+export default function App() {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Goal">
+        <Stack.Screen name="Goal" component={GoalScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="Gender" component={GenderScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false }} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
