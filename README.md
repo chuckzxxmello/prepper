@@ -1,11 +1,29 @@
-# Sample Snack app
+# Prepper App
 
-Open the `App.js` file to start writing some code. You can preview the changes directly on your phone or tablet by scanning the **QR code** or use the iOS or Android emulators. When you're done, click **Save** and share the link!
+Prepper is a meal planning and nutrition tracking app designed to simplify your daily food management. The app allows users to create personalized meal plans, manage recipes, track calories and nutrients, and generate shopping lists based on their meal plans.
 
-When you're ready to see everything that Expo provides (or if you want to use your own editor) you can **Download** your project and use it with [expo cli](https://docs.expo.dev/get-started/installation/#expo-cli)).
+## Features
 
-All projects created in Snack are publicly available, so you can easily share the link to this project via link, or embed it on a web page with the `<>` button.
+- **Meal Planning:** Plan your meals for the week ahead.
+- **Recipe Management:** Store, organize, and search for your favorite recipes.
+- **Calorie & Nutrition Tracking:** Keep track of your calorie intake and monitor key nutrients.
+- **Shopping List Generator:** Automatically generate a shopping list based on your selected recipes and meal plan.
 
-If you're having problems, you can tweet to us [@expo](https://twitter.com/expo) or ask in our [forums](https://forums.expo.dev/c/expo-dev-tools/61) or [Discord](https://chat.expo.dev/).
+## Getting Started
 
-Snack is Open Source. You can find the code on the [GitHub repo](https://github.com/expo/snack).
+To start using Prepper, open the `App.js` file and begin adding your code. You can preview your changes directly on your phone or tablet by scanning the QR code using Expo Go, or use the iOS and Android emulators.
+
+1. Clone this repository:
+   ```bash
+   git clone https://github.com/your-username/prepper.git
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Start the development server:
+   ```bash
+   npm start
+   ```
+4. Open the app on your device with Expo Go or an emulator.
+
