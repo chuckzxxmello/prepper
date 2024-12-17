@@ -30,7 +30,6 @@ const MainTabs = () => {
                 tabBarInactiveTintColor: '#B39DDB',
             })}
         >
-            <Tab.Screen name="Home" component={HomeScreen} />
             <Tab.Screen name="Recipes" component={RecipeScreen} />
             <Tab.Screen name="Home" component={HomeScreen} />
             <Tab.Screen name="Groceries" component={GroceriesScreen} />
