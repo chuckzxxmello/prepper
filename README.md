@@ -15,7 +15,7 @@ To start using Prepper, open the `App.js` file and begin adding your code. You c
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/your-username/prepper.git
+   git clone https://github.com/chuckzxxmello/prepper.git
    ```
 2. Install dependencies:
    ```bash
