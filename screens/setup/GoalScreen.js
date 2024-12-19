@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import OptionSelector from '../../components/OptionSelector';
 import NextButton from '../../components/NextButton';
+import { useUser } from '../../context/UserContext';
 
 const GoalScreen = ({ navigation }) => {
     const [selectedGoal, setSelectedGoal] = useState(null); // State to track selected goal
+    const { updateUserData } = useUser(); // Access updateUserData function
 
     const goalOptions = ['Lose weight', 'Keep weight', 'Gain weight'];
 
@@ -29,7 +31,8 @@ const GoalScreen = ({ navigation }) => {
             <NextButton
                 onPress={() => {
                     if (selectedGoal) {
-                        navigation.navigate('Gender', { goal: selectedGoal });
+                        updateUserData({ goal: selectedGoal }); // Save to UserContext
+                        navigation.navigate('Gender'); // Move to next screen
                     }
                 }}
                 disabled={!selectedGoal} // Disable button if no option is selected
