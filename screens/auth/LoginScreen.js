@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, StyleSheet, Alert } from 'react-native';
 import { colors } from '../../constants/colors';
 import StyledInput from '../../components/StyledInput';
 import { auth } from '../../config/firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import CustomButton from '../../components/CustomButton';
+import { getFirestore, doc, getDoc } from 'firebase/firestore';
+
+const db = getFirestore();
 
 const LoginScreen = ({ navigation }) => {
     const [email, setEmail] = useState('');
@@ -15,6 +18,7 @@ const LoginScreen = ({ navigation }) => {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
 
+            // Check if user is verified
             if (!user.emailVerified) {
                 Alert.alert(
                     "Email Not Verified",
@@ -24,7 +28,17 @@ const LoginScreen = ({ navigation }) => {
                 return;
             }
 
-            navigation.navigate('Goal');
+            // Check if user data exists in Firestore
+            const userRef = doc(db, 'userInfo', user.uid);
+            const userDoc = await getDoc(userRef);
+
+            if (userDoc.exists()) {
+                // User data exists, navigate to HomeScreen
+                navigation.navigate('MainTabs', { screen: 'Home' });
+            } else {
+                // User data does not exist, navigate to setup screens
+                navigation.navigate('Goal');
+            }
         } catch (error) {
             Alert.alert("Error", error.message);
         }
@@ -50,10 +64,6 @@ const LoginScreen = ({ navigation }) => {
                     onChangeText={setPassword}
                     secureTextEntry
                 />
-                
-                <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
-                    <Text style={styles.forgotPassword}>Forgot Password?</Text>
-                </TouchableOpacity>
 
                 <View style={styles.buttonContainer}>
                     <CustomButton
@@ -89,11 +99,6 @@ const styles = StyleSheet.create({
     },
     formContainer: {
         flex: 1,
-    },
-    forgotPassword: {
-        color: colors.primary,
-        textAlign: 'right',
-        marginTop: 10,
     },
     buttonContainer: {
         gap: 10,
