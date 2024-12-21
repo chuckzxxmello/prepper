@@ -1,63 +1,76 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet } from 'react-native';
-import NextButton from '../../components/NextButton';
-import BackButton from '../../components/BackButton';
+import { colors } from '../../constants/colors';
+import CustomButton from '../../components/CustomButton';
+import { auth } from '../../config/firebase';
+import { getFirestore, doc, updateDoc } from 'firebase/firestore';
 
-const PhysicalDetailsScreen = ({ navigation, route }) => {
-    const [height, setHeight] = useState('');
+const db = getFirestore();
+
+const PhysicalScreen = ({ navigation, route }) => {
     const [weight, setWeight] = useState('');
+    const [height, setHeight] = useState('');
     const [age, setAge] = useState('');
+
+    const handleContinue = async () => {
+        try {
+            const userRef = doc(db, 'userInfo', auth.currentUser.uid);
+            await updateDoc(userRef, {
+                weight: parseFloat(weight),
+                height: parseFloat(height),
+                age: parseFloat(age)
+            });
+
+            navigation.navigate('MacroResult', {
+                ...route.params,
+                weight: parseFloat(weight),
+                height: parseFloat(height),
+                age: parseFloat(age)
+            });
+        } catch (error) {
+            console.log('Error saving physical details:', error);
+        }
+    };
 
     return (
         <View style={styles.container}>
-            {/* Back Button */}
-            <BackButton onPress={() => navigation.goBack()} />
+            <View style={styles.headerContainer}>
+                <Text style={styles.title}>Physical Details</Text>
+                <Text style={styles.subtitle}>Enter your measurements</Text>
+            </View>
 
-            {/* Title */}
-            <Text style={styles.title}>Enter Your Details</Text>
-            <Text style={styles.subtitle}>Fill in your height, weight, and age</Text>
+            <View style={styles.inputContainer}>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Weight (kg)"
+                    value={weight}
+                    onChangeText={setWeight}
+                    keyboardType="decimal-pad"
+                />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Height (cm)"
+                    value={height}
+                    onChangeText={setHeight}
+                    keyboardType="decimal-pad"
+                />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Age"
+                    value={age}
+                    onChangeText={setAge}
+                    keyboardType="decimal-pad"
+                />
+            </View>
 
-            {/* Height Input */}
-            <TextInput
-                style={styles.input}
-                placeholder="Height (in cm)"
-                keyboardType="numeric"
-                value={height}
-                onChangeText={setHeight}
-            />
-
-            {/* Weight Input */}
-            <TextInput
-                style={styles.input}
-                placeholder="Weight (in kg)"
-                keyboardType="numeric"
-                value={weight}
-                onChangeText={setWeight}
-            />
-
-            {/* Age Input */}
-            <TextInput
-                style={styles.input}
-                placeholder="Age (in years)"
-                keyboardType="numeric"
-                value={age}
-                onChangeText={setAge}
-            />
-
-            {/* Next Button */}
-            <NextButton
-                onPress={() => {
-                    if (height && weight && age) {
-                        navigation.navigate('MainTabs', {
-                            ...route.params,
-                            height: parseInt(height, 10),
-                            weight: parseInt(weight, 10),
-                            age: parseInt(age, 10),
-                        });
-                    }
-                }}
-                disabled={!height || !weight || !age} // Ensure all fields are filled
-            />
+            <View style={styles.buttonContainer}>
+                <CustomButton
+                    title="Continue"
+                    onPress={handleContinue}
+                    type="primary"
+                    disabled={!weight || !height || !age}
+                />
+            </View>
         </View>
     );
 };
@@ -65,30 +78,37 @@ const PhysicalDetailsScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingHorizontal: 20,
-        backgroundColor: '#FFF',
-        justifyContent: 'center',
+        backgroundColor: colors.background,
+        padding: 20,
+    },
+    headerContainer: {
+        marginTop: 60,
+        marginBottom: 40,
     },
     title: {
-        fontSize: 24,
-        textAlign: 'center',
+        fontSize: 28,
+        fontWeight: 'bold',
+        color: colors.primary,
         marginBottom: 10,
     },
     subtitle: {
         fontSize: 16,
-        textAlign: 'center',
-        color: 'gray',
-        marginBottom: 20,
+        color: colors.text,
+    },
+    inputContainer: {
+        flex: 1,
+        gap: 20,
     },
     input: {
         borderWidth: 1,
-        borderColor: '#ddd',
+        borderColor: colors.border,
         borderRadius: 10,
         padding: 15,
-        marginVertical: 10,
-        fontSize: 18,
-        textAlign: 'center',
+        fontSize: 16,
+    },
+    buttonContainer: {
+        marginTop: 20,
     },
 });
 
-export default PhysicalDetailsScreen;
+export default PhysicalScreen;

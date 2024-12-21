@@ -1,41 +1,54 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { colors } from '../../constants/colors';
+import CustomButton from '../../components/CustomButton';
+import { auth } from '../../config/firebase';
+import { getFirestore, doc, updateDoc } from 'firebase/firestore';
 import OptionSelector from '../../components/OptionSelector';
-import NextButton from '../../components/NextButton';
-import BackButton from '../../components/BackButton';
+
+const db = getFirestore();
 
 const ActivityScreen = ({ navigation, route }) => {
     const [selectedActivity, setSelectedActivity] = useState(null);
+    const activityLevels = ['sedentary', 'light', 'moderate', 'active', 'veryActive'];
 
-    const activityOptions = ['Sedentary', 'Low Active', 'Active', 'Very Active'];
+    const handleContinue = async () => {
+        try {
+            const userRef = doc(db, 'userInfo', auth.currentUser.uid);
+            await updateDoc(userRef, {
+                activityLevel: selectedActivity
+            });
+
+            navigation.navigate('Physical', { 
+                ...route.params, 
+                activityLevel: selectedActivity 
+            });
+        } catch (error) {
+            console.log('Error saving activity level:', error);
+        }
+    };
 
     return (
         <View style={styles.container}>
-            {/* Back Button */}
-            <BackButton onPress={() => navigation.goBack()} />
+            <View style={styles.headerContainer}>
+                <Text style={styles.title}>Activity Level</Text>
+                <Text style={styles.subtitle}>Select your typical activity level</Text>
+            </View>
 
-            {/* Title */}
-            <Text style={styles.title}>How active are you?</Text>
-            <Text style={styles.subtitle}>
-                A sedentary person burns fewer calories than an active person
-            </Text>
-
-            {/* Option Selector */}
             <OptionSelector
-                options={activityOptions}
+                options={activityLevels}
                 selectedOption={selectedActivity}
-                onSelect={(activity) => setSelectedActivity(activity)}
+                onSelect={setSelectedActivity}
             />
 
-            {/* Next Button */}
-            <NextButton
-                onPress={() => {
-                    if (selectedActivity) {
-                        navigation.navigate('Physical', { gender: selectedActivity });
-                    }
-                }}
-                disabled={!selectedActivity} // Disable button if no option is selected
-            />
+            <View style={styles.buttonContainer}>
+                <CustomButton
+                    title="Continue"
+                    onPress={handleContinue}
+                    type="primary"
+                    disabled={!selectedActivity}
+                />
+            </View>
         </View>
     );
 };
@@ -43,21 +56,25 @@ const ActivityScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingHorizontal: 20,
-        backgroundColor: '#FFF',
-        justifyContent: 'center',
+        backgroundColor: colors.background,
+        padding: 20,
+    },
+    headerContainer: {
+        marginTop: 60,
+        marginBottom: 40,
     },
     title: {
-        fontSize: 24,
-        textAlign: 'center',
-        marginTop: 0,
-        marginBottom: 20,
+        fontSize: 28,
+        fontWeight: 'bold',
+        color: colors.primary,
+        marginBottom: 10,
     },
     subtitle: {
-        fontFamily: 'Poppins-Regular',
         fontSize: 16,
-        color: 'gray',
-        textAlign: 'center',
+        color: colors.text,
+    },
+    buttonContainer: {
+        marginTop: 20,
     },
 });
 

@@ -1,39 +1,52 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { colors } from '../../constants/colors';
+import CustomButton from '../../components/CustomButton';
+import { auth } from '../../config/firebase';
+import { getFirestore, doc, updateDoc } from 'firebase/firestore';
 import OptionSelector from '../../components/OptionSelector';
-import NextButton from '../../components/NextButton';
+
+const db = getFirestore();
 
 const GoalScreen = ({ navigation }) => {
-    const [selectedGoal, setSelectedGoal] = useState(null); // State to track selected goal
+    const [selectedGoal, setSelectedGoal] = useState(null);
+    const goals = ['lose', 'maintain', 'gain'];
 
-    const goalOptions = ['Lose weight', 'Keep weight', 'Gain weight'];
+    const handleContinue = async () => {
+        try {
+            // Save goal to Firestore
+            const userRef = doc(db, 'userInfo', auth.currentUser.uid);
+            await updateDoc(userRef, {
+                goal: selectedGoal
+            });
+
+            navigation.navigate('Gender', { goal: selectedGoal });
+        } catch (error) {
+            console.log('Error saving goal:', error);
+        }
+    };
 
     return (
         <View style={styles.container}>
-            {/* Title and Subtitle */}
-            <View style={styles.header}>
-                <Text style={styles.title}>What's your goal?</Text>
-                <Text style={styles.subtitle}>
-                    We will calculate daily calories according to your goal
-                </Text>
+            <View style={styles.headerContainer}>
+                <Text style={styles.title}>What's Your Goal?</Text>
+                <Text style={styles.subtitle}>Select your fitness goal</Text>
             </View>
 
-            {/* Goal Options */}
             <OptionSelector
-                options={goalOptions}
+                options={goals}
                 selectedOption={selectedGoal}
-                onSelect={(goal) => setSelectedGoal(goal)}
+                onSelect={setSelectedGoal}
             />
 
-            {/* Next Button */}
-            <NextButton
-                onPress={() => {
-                    if (selectedGoal) {
-                        navigation.navigate('Gender', { goal: selectedGoal });
-                    }
-                }}
-                disabled={!selectedGoal} // Disable button if no option is selected
-            />
+            <View style={styles.buttonContainer}>
+                <CustomButton
+                    title="Continue"
+                    onPress={handleContinue}
+                    type="primary"
+                    disabled={!selectedGoal}
+                />
+            </View>
         </View>
     );
 };
@@ -41,24 +54,25 @@ const GoalScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FFF',
-        paddingHorizontal: 20,
+        backgroundColor: colors.background,
+        padding: 20,
     },
-    header: {
-        marginTop: 70,
-        alignItems: 'center',
+    headerContainer: {
+        marginTop: 60,
+        marginBottom: 40,
     },
     title: {
-        fontFamily: 'Poppins-Bold',
-        fontSize: 24,
-        textAlign: 'center',
+        fontSize: 28,
+        fontWeight: 'bold',
+        color: colors.primary,
         marginBottom: 10,
     },
     subtitle: {
-        fontFamily: 'Poppins-Regular',
         fontSize: 16,
-        color: 'gray',
-        textAlign: 'center',
+        color: colors.text,
+    },
+    buttonContainer: {
+        marginTop: 20,
     },
 });
 
