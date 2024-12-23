@@ -1,13 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Alert } from 'react-native';
-import { colors } from '../../constants/colors';
-import StyledInput from '../../components/StyledInput';
-import { auth } from '../../config/firebase';
+import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet } from 'react-native';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import CustomButton from '../../components/CustomButton';
-import { getFirestore, doc, getDoc } from 'firebase/firestore';
-
-const db = getFirestore();
+import { doc, getDoc } from 'firebase/firestore';
+import { auth, db } from '../../config/firebase'; // Adjust import paths as needed
+import { colors } from '../../constants/colors';
 
 const LoginScreen = ({ navigation }) => {
     const [email, setEmail] = useState('');
@@ -32,12 +28,19 @@ const LoginScreen = ({ navigation }) => {
             const userRef = doc(db, 'userInfo', user.uid);
             const userDoc = await getDoc(userRef);
 
-            if (userDoc.exists()) {
-                // User data exists, navigate to HomeScreen
-                navigation.navigate('MainTabs', { screen: 'Home' });
-            } else {
-                // User data does not exist, navigate to setup screens
+            if (!userDoc.exists()) {
+                // If user info doc doesn't exist
                 navigation.navigate('Goal');
+                return;
+            }
+
+            // If user info doc exists, check if 'goal' field is set
+            const userData = userDoc.data();
+            if (!userData.goal) {
+                navigation.navigate('Goal');
+            } else {
+                // User already has a goal set, navigate to HomeScreen
+                navigation.navigate('MainTabs', { screen: 'Home' });
             }
         } catch (error) {
             Alert.alert("Error", error.message);
@@ -46,33 +49,28 @@ const LoginScreen = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-            <View style={styles.headerContainer}>
-                <Text style={styles.title}>Welcome Back!</Text>
-                <Text style={styles.subtitle}>Sign in to continue</Text>
-            </View>
-
-            <View style={styles.formContainer}>
-                <StyledInput
-                    placeholder="Email"
-                    value={email}
-                    onChangeText={setEmail}
-                    keyboardType="email-address"
-                />
-                <StyledInput
-                    placeholder="Password"
-                    value={password}
-                    onChangeText={setPassword}
-                    secureTextEntry
-                />
-
-                <View style={styles.buttonContainer}>
-                    <CustomButton
-                        title="Sign In"
-                        onPress={handleLogin}
-                        type="primary"
-                    />
-                </View>
-            </View>
+            <Text style={styles.title}>Login</Text>
+            <TextInput
+                style={styles.input}
+                placeholder="Email"
+                autoCapitalize="none"
+                keyboardType="email-address"
+                value={email}
+                onChangeText={setEmail}
+            />
+            <TextInput
+                style={styles.input}
+                placeholder="Password"
+                secureTextEntry
+                value={password}
+                onChangeText={setPassword}
+            />
+            <TouchableOpacity style={styles.button} onPress={handleLogin}>
+                <Text style={styles.buttonText}>Log In</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
+                <Text style={styles.link}>Don't have an account? Sign up</Text>
+            </TouchableOpacity>
         </View>
     );
 };
@@ -80,29 +78,40 @@ const LoginScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: colors.background,
+        backgroundColor: '#fff',
         padding: 20,
-    },
-    headerContainer: {
-        marginTop: 60,
-        marginBottom: 40,
+        justifyContent: 'center',
     },
     title: {
-        fontSize: 28,
+        fontSize: 24,
         fontWeight: 'bold',
         color: colors.primary,
-        marginBottom: 10,
+        marginBottom: 24,
+        textAlign: 'center',
     },
-    subtitle: {
-        fontSize: 16,
-        color: colors.text,
+    input: {
+        height: 40,
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 8,
+        paddingHorizontal: 10,
+        marginVertical: 8,
     },
-    formContainer: {
-        flex: 1,
+    button: {
+        backgroundColor: colors.primary,
+        padding: 12,
+        borderRadius: 8,
+        alignItems: 'center',
+        marginVertical: 8,
     },
-    buttonContainer: {
-        gap: 10,
-        marginTop: 20,
+    buttonText: {
+        color: '#fff',
+        fontWeight: 'bold',
+    },
+    link: {
+        marginTop: 16,
+        color: colors.secondary,
+        textAlign: 'center',
     },
 });
 

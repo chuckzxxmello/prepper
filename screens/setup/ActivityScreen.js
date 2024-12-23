@@ -8,9 +8,22 @@ import OptionSelector from '../../components/OptionSelector';
 
 const db = getFirestore();
 
+// Map displayed labels to Firestore values
+const activityMap = {
+    'Sedentary': 'sedentary',
+    'Light': 'light',
+    'Moderate': 'moderate',
+    'Active': 'active',
+    'Very Active': 'veryActive'
+};
+const activityLabels = Object.keys(activityMap);
+
 const ActivityScreen = ({ navigation, route }) => {
     const [selectedActivity, setSelectedActivity] = useState(null);
-    const activityLevels = ['sedentary', 'light', 'moderate', 'active', 'veryActive'];
+
+    const handleSelect = (label) => {
+        setSelectedActivity(activityMap[label]);
+    };
 
     const handleContinue = async () => {
         try {
@@ -19,9 +32,9 @@ const ActivityScreen = ({ navigation, route }) => {
                 activityLevel: selectedActivity
             });
 
-            navigation.navigate('Physical', { 
-                ...route.params, 
-                activityLevel: selectedActivity 
+            navigation.navigate('Physical', {
+                ...route.params,
+                activityLevel: selectedActivity
             });
         } catch (error) {
             console.log('Error saving activity level:', error);
@@ -36,9 +49,12 @@ const ActivityScreen = ({ navigation, route }) => {
             </View>
 
             <OptionSelector
-                options={activityLevels}
-                selectedOption={selectedActivity}
-                onSelect={setSelectedActivity}
+                options={activityLabels}
+                selectedOption={
+                    // Find the label for the currently selected value
+                    activityLabels.find(label => activityMap[label] === selectedActivity)
+                }
+                onSelect={handleSelect}
             />
 
             <View style={styles.buttonContainer}>
