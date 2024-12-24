@@ -2,12 +2,13 @@ import React from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { colors } from '../constants/colors';
 
-const CustomButton = ({ title, onPress, type = 'primary' }) => {
+const CustomButton = ({ title, onPress, type = 'primary', buttonStyle }) => {
   return (
     <TouchableOpacity 
       style={[
         styles.button, 
-        type === 'primary' ? styles.primaryButton : styles.secondaryButton
+        type === 'primary' ? styles.primaryButton : styles.secondaryButton,
+        buttonStyle // Apply the buttonStyle prop here
       ]} 
       onPress={onPress}
     >

@@ -13,6 +13,7 @@ const MainTabs = () => {
     return (
         <Tab.Navigator
             screenOptions={({ route }) => ({
+                headerShown: false, // Disable the default header
                 tabBarIcon: ({ focused, color, size }) => {
                     let iconName;
 
@@ -28,6 +29,14 @@ const MainTabs = () => {
                 },
                 tabBarActiveTintColor: '#6A0DAD',
                 tabBarInactiveTintColor: '#B39DDB',
+                tabBarStyle: {
+                    backgroundColor: '#fff',
+                    borderTopWidth: 0,
+                    elevation: 5,
+                },
+                tabBarLabelStyle: {
+                    fontSize: 12,
+                },
             })}
         >
             <Tab.Screen name="Recipes" component={RecipeScreen} />

@@ -1,31 +1,112 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, FlatList, StyleSheet, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, FlatList, StyleSheet, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import axios from 'axios';
 import ProfileHeader from '../../components/ProfileHeader';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { colors } from '../../constants/colors';
 
-const RecipeScreen = () => {
+const RecipeScreen = ({ navigation }) => {
     const [query, setQuery] = useState('');
     const [isFocused, setIsFocused] = useState(false);
     const [recipes, setRecipes] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [page, setPage] = useState(0); // New state for pagination
+    const [hasMore, setHasMore] = useState(true); // Indicates if more recipes are available
+    const [loadingMore, setLoadingMore] = useState(false); // Indicates if more recipes are being loaded
 
-    const searchRecipes = async () => {
+    useEffect(() => {
+        // Fetch default recipes on initial load
+        fetchRecipes(0, true);
+    }, []);
+
+    const fetchRecipes = async (pageNumber = 0, isNewSearch = false) => {
+        if (loading || loadingMore) return;
+
+        if (isNewSearch) {
+            setLoading(true);
+        } else {
+            setLoadingMore(true);
+        }
+
         try {
             const response = await axios.get(`https://api.spoonacular.com/recipes/complexSearch`, {
                 params: {
-                    query,
-                    apiKey: 'e5a4006119304baeb4c2751d678cdfac',
+                    query: query || 'chicken', // Default query if none provided
+                    apiKey: 'e5a4006119304baeb4c2751d678cdfac', // Replace with your actual API key
                     number: 10,
+                    offset: pageNumber * 10, // Pagination parameter
                     addRecipeInformation: true,
                     addRecipeNutrition: true,
-                    sort: 'popularity', // Sort by popularity to get the most common or relevant recipes
+                    instructionsRequired: true,      // Added
+                    fillIngredients: true,           // Added
+                    sort: 'popularity',
                 },
             });
-            setRecipes(response.data.results);
+            const newRecipes = response.data.results;
+
+            if (isNewSearch) {
+                setRecipes(newRecipes);
+            } else {
+                setRecipes((prevRecipes) => [...prevRecipes, ...newRecipes]);
+            }
+
+            // Update hasMore based on the total results
+            const totalResults = response.data.totalResults;
+            setHasMore((pageNumber + 1) * 10 < totalResults);
+            setPage(pageNumber + 1);
         } catch (error) {
             console.error('Error fetching recipes:', error);
+        } finally {
+            if (isNewSearch) {
+                setLoading(false);
+            } else {
+                setLoadingMore(false);
+            }
         }
+    };
+
+    const handleSearch = () => {
+        setPage(0);
+        setHasMore(true);
+        fetchRecipes(0, true);
+    };
+
+    const loadMoreRecipes = () => {
+        if (hasMore && !loadingMore && !loading) {
+            fetchRecipes(page);
+        }
+    };
+
+    const renderItem = ({ item }) => (
+        <TouchableOpacity 
+            onPress={() => navigation.navigate('RecipeDetail', { recipe: item })}
+            activeOpacity={0.8}
+        >
+            <View style={styles.recipeCard}>
+                <Image source={{ uri: item.image }} style={styles.recipeImage} />
+                <View style={styles.recipeDetails}>
+                    <View style={styles.recipeHeader}>
+                        <Text style={styles.recipeTitle}>{item.title}</Text>
+                        <View style={styles.recipeTimeContainer}>
+                            <Icon name="access-time" size={14} color="#555" />
+                            <Text style={styles.recipeTime}>{item.readyInMinutes} mins</Text>
+                        </View>
+                    </View>
+                    <Text style={styles.recipeInfo}>
+                        Calories: {item.nutrition?.nutrients.find(n => n.name === 'Calories')?.amount || 'N/A'}
+                    </Text>
+                </View>
+            </View>
+        </TouchableOpacity>
+    );
+
+    const renderFooter = () => {
+        if (!loadingMore) return null;
+        return (
+            <View style={styles.footerLoader}>
+                <ActivityIndicator size="small" color={colors.primary} />
+            </View>
+        );
     };
 
     return (
@@ -37,32 +118,27 @@ const RecipeScreen = () => {
                     style={styles.searchInput}
                     placeholder="Search for recipes..."
                     value={query}
-                    onChangeText={setQuery}
-                    onSubmitEditing={searchRecipes}
+                    onChangeText={(text) => setQuery(text)}
+                    onSubmitEditing={handleSearch}
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setIsFocused(false)}
+                    returnKeyType="search"
                 />
             </View>
-            <FlatList
-                contentContainerStyle={styles.recipeList}
-                data={recipes}
-                keyExtractor={(item) => item.id.toString()}
-                renderItem={({ item }) => (
-                    <View style={styles.recipeCard}>
-                        <Image source={{ uri: item.image }} style={styles.recipeImage} />
-                        <View style={styles.recipeDetails}>
-                            <View style={styles.recipeHeader}>
-                                <Text style={styles.recipeTitle}>{item.title}</Text>
-                                <View style={styles.recipeTimeContainer}>
-                                    <Icon name="access-time" size={14} color="#555" />
-                                    <Text style={styles.recipeTime}>{item.readyInMinutes} mins</Text>
-                                </View>
-                            </View>
-                            <Text style={styles.recipeInfo}>Calories: {item.nutrition?.nutrients.find(n => n.name === 'Calories')?.amount || 'N/A'}</Text>
-                        </View>
-                    </View>
-                )}
-            />
+            {loading && page === 0 ? (
+                <ActivityIndicator size="large" color={colors.primary} style={styles.loader} />
+            ) : (
+                <FlatList
+                    contentContainerStyle={styles.recipeList}
+                    data={recipes}
+                    keyExtractor={(item) => item.id.toString()}
+                    renderItem={renderItem}
+                    ListEmptyComponent={<Text style={styles.emptyText}>No recipes found.</Text>}
+                    onEndReached={loadMoreRecipes}
+                    onEndReachedThreshold={0.5}
+                    ListFooterComponent={renderFooter}
+                />
+            )}
         </View>
     );
 };
@@ -79,8 +155,8 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderRadius: 8,
         marginHorizontal: 20,
-        marginTop: 5,
-        marginBottom: 22,
+        marginTop: 17,
+        marginBottom: 15,
         paddingLeft: 8,
         backgroundColor: '#fff',
     },
@@ -97,6 +173,7 @@ const styles = StyleSheet.create({
     },
     recipeList: {
         paddingHorizontal: 20,
+        paddingBottom: 20, // Ensure content is not hidden behind the footer
     },
     recipeCard: {
         marginVertical: 10,
@@ -142,14 +219,17 @@ const styles = StyleSheet.create({
         color: '#555',
         marginTop: 5,
     },
-    content: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
+    loader: {
+        marginTop: 20,
     },
-    title: {
-        fontSize: 24,
-        fontWeight: 'bold',
+    emptyText: {
+        textAlign: 'center',
+        marginTop: 20,
+        color: '#555',
+        fontSize: 16,
+    },
+    footerLoader: {
+        paddingVertical: 20,
     },
 });
 

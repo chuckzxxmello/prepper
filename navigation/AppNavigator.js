@@ -8,6 +8,7 @@ import ActivityScreen from '../screens/setup/ActivityScreen';
 import PhysicalScreen from '../screens/setup/PhysicalScreen';
 import MacroResultScreen from '../screens/setup/MacroResultScreen';
 import MainTabs from './MainTabs';
+import RecipeDetailScreen from '../screens/dashboard/RecipeDetailScreen';
 
 // Auth Screens
 import WelcomeScreen from '../screens/auth/WelcomeScreen';
@@ -35,6 +36,7 @@ const AppNavigator = () => {
         <Stack.Screen name="Physical" component={PhysicalScreen} options={{ headerShown: false }} />
         <Stack.Screen name="MacroResult" component={MacroResultScreen} options={{ headerShown: false }} />
         <Stack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false }} />
+        <Stack.Screen name="RecipeDetail" component={RecipeDetailScreen} options={{ headerShown: false }} />
     </Stack.Navigator>
     );
 };
