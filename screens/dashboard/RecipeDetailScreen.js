@@ -1,8 +1,10 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, Image, StyleSheet, ScrollView, Alert } from 'react-native';
 import { colors } from '../../constants/colors'; // Ensure this path is correct
 import CustomButton from '../../components/CustomButton';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { auth, db } from '../../config/firebase';
+import { doc, updateDoc, arrayUnion, getDoc } from 'firebase/firestore';
 
 const RecipeDetailScreen = ({ route, navigation }) => {
     const { recipe } = route.params;
@@ -36,6 +38,65 @@ const RecipeDetailScreen = ({ route, navigation }) => {
     ) {
         instructions = recipe.analyzedInstructions[0].steps.map((stepObj) => stepObj.step);
     }
+
+    const addIngredientsToGroceryList = async () => {
+        if (!auth.currentUser) {
+            Alert.alert('Error', 'You need to be logged in to add items to the grocery list.');
+            return;
+        }
+    
+        const userId = auth.currentUser.uid;
+        const userRef = doc(db, 'userInfo', userId);
+    
+        try {
+            const userDoc = await getDoc(userRef);
+            const currentGroceryList = userDoc.exists() ? userDoc.data().groceryList || [] : [];
+    
+            console.log("Current grocery list:", currentGroceryList);
+    
+            // Extract clean ingredient names
+            const newItems = ingredients
+                .map((ingredient) => {
+                    // Prefer clean name or name field if available, fallback to extracting from original
+                    return ingredient.nameClean || ingredient.name || extractCoreIngredient(ingredient.original);
+                })
+                .filter((ingredientName) => 
+                    ingredientName && 
+                    !currentGroceryList.some((item) => item.name.toLowerCase() === ingredientName.toLowerCase())
+                )
+                .map((ingredientName) => ({
+                    name: ingredientName,
+                    checked: false,
+                }));
+    
+            console.log("Cleaned new items to add:", newItems);
+    
+            if (newItems.length > 0) {
+                await updateDoc(userRef, {
+                    groceryList: arrayUnion(...newItems),
+                });
+    
+                Alert.alert('Success', 'Ingredients added to your grocery list!');
+            } else {
+                Alert.alert('Notice', 'All ingredients are already in your grocery list.');
+            }
+        } catch (error) {
+            console.error('Error adding ingredients to grocery list:', error);
+            Alert.alert('Error', 'Failed to add ingredients to the grocery list.');
+        }
+    };
+    
+    // Utility function to extract the core ingredient from the original string
+    const extractCoreIngredient = (original) => {
+        // Remove measurements, quantities, and extra descriptions using regex
+        return original
+            .toLowerCase() // Convert to lowercase
+            .replace(/(\d+\s?\w*)/, '') // Remove quantities (e.g., 4tsp, 1 cup)
+            .replace(/(minced|sliced|chopped|diced|crushed|ground|peeled|whole|fresh|large|small|medium|fine)/g, '') // Remove descriptors
+            .replace(/[^a-z\s]/g, '') // Remove non-alphabetic characters
+            .trim(); // Trim extra spaces
+    };
+    
 
     return (
         <ScrollView style={styles.container}>
@@ -106,6 +167,14 @@ const RecipeDetailScreen = ({ route, navigation }) => {
                     )}
                 </View>
             </View>
+
+            {/* Add to Grocery List Button */}
+            <CustomButton
+                title="Add Ingredients to Grocery List"
+                onPress={addIngredientsToGroceryList}
+                type="primary"
+                buttonStyle={styles.button}
+            />
 
             {/* Back Button */}
             <CustomButton
@@ -214,8 +283,8 @@ const styles = StyleSheet.create({
     },
     button: {
         alignSelf: 'center',
-        width: '90%', // Reduced width
-        marginBottom: 15, // Added bottom margin
+        width: '90%',
+        marginBottom: 15,
     },
 });
 
