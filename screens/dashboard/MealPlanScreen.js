@@ -178,22 +178,7 @@ const handleEditMeal = (meal, index, selectedDay) => {
                 )}
             </View>
 
-            <View style={styles.totalCalories}>
-                <Text style={styles.totalCaloriesText}>
-                    Total Calories for {selectedDay}: {calculateTotalCalories(selectedDay)} kcal
-                </Text>
-                <Text style={styles.totalCaloriesText}>
-                    Total Protein for {selectedDay}: {calculateTotalProtein(selectedDay)} g
-                </Text>
-                <Text style={styles.totalCaloriesText}>
-                    Total Fat for {selectedDay}: {calculateTotalFat(selectedDay)} g
-                </Text>
-                <Text style={styles.totalCaloriesText}>
-                    Total Carbs for {selectedDay}: {calculateTotalCarbs(selectedDay)} g
-                </Text>
-            </View>
-
-            <TouchableOpacity style={styles.addMealButton} onPress={() => navigation.navigate('RecipeDetailScreen')}>
+            <TouchableOpacity style={styles.addMealButton} onPress={() => navigation.navigate('RecipeScreen')}>
                 <Text style={styles.addMealButtonText}>Add a Meal Plan</Text>
             </TouchableOpacity>
 
@@ -292,17 +277,6 @@ const styles = StyleSheet.create({
         fontSize: 16,
         marginVertical: 4,
         color: '#B0B0B0',
-    },
-    totalCalories: {
-        marginTop: 10,
-        paddingTop: 10,
-        borderTopWidth: 1,
-        borderColor: '#444',
-    },
-    totalCaloriesText: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: '#fff',
     },
     addMealButton: {
         backgroundColor: '#8A2BE2',

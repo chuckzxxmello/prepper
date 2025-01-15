@@ -1,70 +1,41 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { colors } from '../../constants/colors';
-import CustomButton from '../../components/CustomButton';
-import { auth } from '../../config/firebase';
-import { getFirestore, doc, updateDoc } from 'firebase/firestore';
 import OptionSelector from '../../components/OptionSelector';
-
-const db = getFirestore();
-
-// Map displayed labels to Firestore values
-const activityMap = {
-    'Sedentary': 'sedentary',
-    'Light': 'light',
-    'Moderate': 'moderate',
-    'Active': 'active',
-    'Very Active': 'veryActive'
-};
-const activityLabels = Object.keys(activityMap);
+import NextButton from '../../components/NextButton';
+import BackButton from '../../components/BackButton';
 
 const ActivityScreen = ({ navigation, route }) => {
     const [selectedActivity, setSelectedActivity] = useState(null);
 
-    const handleSelect = (label) => {
-        setSelectedActivity(activityMap[label]);
-    };
-
-    const handleContinue = async () => {
-        try {
-            const userRef = doc(db, 'userInfo', auth.currentUser.uid);
-            await updateDoc(userRef, {
-                activityLevel: selectedActivity
-            });
-
-            navigation.navigate('Physical', {
-                ...route.params,
-                activityLevel: selectedActivity
-            });
-        } catch (error) {
-            console.log('Error saving activity level:', error);
-        }
-    };
+    const activityOptions = ['Sedentary', 'Low Active', 'Active', 'Very Active'];
 
     return (
         <View style={styles.container}>
-            <View style={styles.headerContainer}>
-                <Text style={styles.title}>Activity Level</Text>
-                <Text style={styles.subtitle}>Select your typical activity level</Text>
-            </View>
+            {/* Back Button */}
+            <BackButton onPress={() => navigation.goBack()} />
 
+            {/* Title */}
+            <Text style={styles.title}>How active are you?</Text>
+            <Text style={styles.subtitle}>
+                A sedentary person burns fewer calories than an active person
+            </Text>
+
+            {/* Option Selector */}
             <OptionSelector
-                options={activityLabels}
-                selectedOption={
-                    // Find the label for the currently selected value
-                    activityLabels.find(label => activityMap[label] === selectedActivity)
-                }
-                onSelect={handleSelect}
+                options={activityOptions}
+                selectedOption={selectedActivity}
+                onSelect={(activity) => setSelectedActivity(activity)}
             />
 
-            <View style={styles.buttonContainer}>
-                <CustomButton
-                    title="Continue"
-                    onPress={handleContinue}
-                    type="primary"
-                    disabled={!selectedActivity}
-                />
-            </View>
+            {/* Next Button */}
+            <NextButton
+                onPress={() => {
+                    if (selectedActivity) {
+                        navigation.navigate('Physical', { gender: selectedActivity });
+                    }
+                }}
+                disabled={!selectedActivity} // Disable button if no option is selected
+            />
         </View>
     );
 };
@@ -72,25 +43,21 @@ const ActivityScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: colors.background,
-        padding: 20,
-    },
-    headerContainer: {
-        marginTop: 60,
-        marginBottom: 40,
+        paddingHorizontal: 20,
+        backgroundColor: '#FFF',
+        justifyContent: 'center',
     },
     title: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        color: colors.primary,
-        marginBottom: 10,
+        fontSize: 24,
+        textAlign: 'center',
+        marginTop: 0,
+        marginBottom: 20,
     },
     subtitle: {
+        fontFamily: 'Poppins-Regular',
         fontSize: 16,
-        color: colors.text,
-    },
-    buttonContainer: {
-        marginTop: 20,
+        color: 'gray',
+        textAlign: 'center',
     },
 });
 

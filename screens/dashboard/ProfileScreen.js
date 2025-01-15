@@ -83,7 +83,14 @@ const ProfileScreen = () => {
             <View style={styles.profileOptions}>
                 <TouchableOpacity
                     style={styles.option}
-                    onPress={() => navigation.navigate('NutrientsIndicatorScreen')}
+                    onPress={() => navigation.navigate('NutrientsIndicator', {
+                        weight: userData?.weight || 70, // Provide default values if necessary
+                        height: userData?.height || 170,
+                        age: userData?.age || 25,
+                        gender: userData?.gender || 'male',
+                        activityLevel: userData?.activityLevel || 'moderate',
+                        goal: userData?.goal || 'maintain'
+                    })}
                 >
                     <Text style={styles.optionText}>Nutrients Indicator</Text>
                     <View style={styles.optionDetails}>
@@ -91,11 +98,23 @@ const ProfileScreen = () => {
                         <Text style={styles.optionValue}>{userData?.calorie || 'N/A'} Cal</Text>
                     </View>
                 </TouchableOpacity>
+                
                 <TouchableOpacity style={styles.option}>
                     <Text style={styles.optionText}>Weight Unit</Text>
                     <View style={styles.optionDetails}>
                         <Ionicons name="scale" size={24} color="#9D4EDD" style={styles.optionIcon} />
                         <Text style={styles.optionValue}>{userData?.weightUnit || 'Kilograms'}</Text>
+                    </View>
+                </TouchableOpacity>
+
+                {/* About Us Button */}
+                <TouchableOpacity
+                    style={styles.option}
+                    onPress={() => navigation.navigate('AboutUs')} // Add navigation to About Us screen or any other action
+                >
+                    <Text style={styles.optionText}>About Us</Text>
+                    <View style={styles.optionDetails}>
+                        <Ionicons name="information-circle" size={24} color="#9D4EDD" style={styles.optionIcon} />
                     </View>
                 </TouchableOpacity>
             </View>

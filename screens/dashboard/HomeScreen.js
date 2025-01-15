@@ -4,8 +4,10 @@ import { Text, Button, Card, IconButton, ProgressBar } from 'react-native-paper'
 import { LineChart } from 'react-native-chart-kit';
 import ProfileHeader from '../../components/ProfileHeader';
 import { db, auth } from '../../config/firebase';
-import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
+import { doc, getDoc, setDoc, getFirestore, onSnapshot } from 'firebase/firestore';
 import moment from 'moment';
+
+import { calculateBMR, calculateTDEE, adjustCaloriesForGoal, calculateMacros } from '../../utils/calculations';
 
 export default function HomeScreen({ navigation }) {
   const [waterIntake, setWaterIntake] = useState(0);
@@ -86,16 +88,22 @@ export default function HomeScreen({ navigation }) {
     return moment(time, 'HH:mm').format('HH:mm A');
   };
 
-  const weeklyCaloriesData = {
-    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-    datasets: [
-      {
-        data: [2300, 2450, 2200, 2650, 2550, 2800, 3000],
-        color: (opacity = 1) => `rgba(128, 0, 128, ${opacity})`,
-        strokeWidth: 2,
-      },
-    ],
-  };
+const weeklyCaloriesData = {
+  labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+  datasets: [
+    {
+      data: (() => {
+        const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        return daysOfWeek.map(day => {
+          const mealsForDay = userData?.mealPlan?.filter(meal => meal.mealDay === day) || [];
+          return mealsForDay.reduce((total, meal) => total + (Number(meal.macronutrients?.calories) || 0), 0);
+        });
+      })(),
+      color: (opacity = 1) => `rgba(128, 0, 128, ${opacity})`,
+      strokeWidth: 2,
+    },
+  ],
+};
 
   const renderWeeklyCaloriesChart = () => (
     <View style={styles.chartContainer}>
@@ -124,41 +132,157 @@ export default function HomeScreen({ navigation }) {
     </View>
   );
 
-  const renderNutrientsIndicator = () => (
-    <TouchableOpacity
-      onPress={() => navigation.navigate('NutrientsIndicatorScreen')}
-      style={styles.leftPanel}
-    >
-      <Card style={styles.card}>
-        <Card.Content>
-          <Text variant="titleSmall" style={styles.sectionTitle}>Nutrients Indicator</Text>
-          <View style={styles.nutrientRow}>
-            <Text style={styles.nutrientText}>Proteins</Text>
-            <Text style={styles.nutrientText}>150 / 225</Text>
-          </View>
-          <ProgressBar progress={getProgress(150, 225)} color="#E57373" />
-          
-          <View style={styles.nutrientRow}>
-            <Text style={styles.nutrientText}>Fats</Text>
-            <Text style={styles.nutrientText}>30 / 118</Text>
-          </View>
-          <ProgressBar progress={getProgress(30, 118)} color="#FFB74D" />
-          
-          <View style={styles.nutrientRow}>
-            <Text style={styles.nutrientText}>Carbs</Text>
-            <Text style={styles.nutrientText}>319 / 340</Text>
-          </View>
-          <ProgressBar progress={getProgress(319, 340)} color="#81C784" />
-          
-          <View style={styles.nutrientRow}>
-            <Text style={styles.nutrientText}>Calories</Text>
-            <Text style={styles.nutrientText}>2456 / 3400</Text>
-          </View>
-          <ProgressBar progress={getProgress(2456, 3400)} color="#64B5F6" />
-        </Card.Content>
-      </Card>
-    </TouchableOpacity>
-  );
+
+
+
+
+
+
+
+const db = getFirestore();
+
+const renderNutrientsIndicator = () => {
+    const [userData, setUserData] = useState(null);
+    const [results, setResults] = useState(null);
+    const [mealPlanTotals, setMealPlanTotals] = useState(null);
+    const currentDay = moment().format('dddd'); // Get current day (e.g., 'Wednesday')
+
+    useEffect(() => {
+        // Set up real-time listener for user data
+        const userRef = doc(db, 'userInfo', auth.currentUser.uid);
+
+        const unsubscribe = onSnapshot(userRef, (doc) => {
+            if (doc.exists()) {
+                const data = doc.data();
+                setUserData(data);
+                calculateResults(data);
+                calculateMealPlanTotals(data.mealPlan || []);
+            }
+        }, (error) => {
+            console.log('Error getting real-time updates:', error);
+        });
+
+        // Cleanup listener on component unmount
+        return () => unsubscribe();
+    }, []);
+
+    const calculateTotalCalories = (day) => {
+        const mealsForDay = userData?.mealPlan?.filter(meal => meal.mealDay === day) || [];
+        const totalCalories = mealsForDay.reduce((total, meal) => total + Math.round(meal.macronutrients?.calories || 0), 0);
+        return totalCalories;
+    };
+
+    const calculateTotalProtein = (day) => {
+        const mealsForDay = userData?.mealPlan?.filter(meal => meal.mealDay === day) || [];
+        const totalProtein = mealsForDay.reduce((total, meal) => total + Math.round(meal.macronutrients?.protein || 0), 0);
+        return totalProtein;
+    };
+
+    const calculateTotalFat = (day) => {
+        const mealsForDay = userData?.mealPlan?.filter(meal => meal.mealDay === day) || [];
+        const totalFat = mealsForDay.reduce((total, meal) => total + Math.round(meal.macronutrients?.fat || 0), 0);
+        return totalFat;
+    };
+
+    const calculateTotalCarbs = (day) => {
+        const mealsForDay = userData?.mealPlan?.filter(meal => meal.mealDay === day) || [];
+        const totalCarbs = mealsForDay.reduce((total, meal) => total + Math.round(meal.macronutrients?.carbs || 0), 0);
+        return totalCarbs;
+    };
+
+    const renderProgressBar = (label, current, total, color) => {
+        const roundedCurrent = Math.round(current);
+        const roundedTotal = Math.round(total);
+        // Convert progress calculation to a fixed-point number
+        const progress = (roundedCurrent / roundedTotal).toFixed(2);
+        return (
+            <>
+                <View style={styles.nutrientRow}>
+                    <Text style={styles.nutrientText}>{label}</Text>
+                    <Text style={styles.nutrientText}>
+                        {roundedCurrent} / {roundedTotal} {label === "Calories" ? "kcal" : "g"}
+                    </Text>
+                </View>
+                <ProgressBar progress={Math.min(progress, 1)} color={color} />
+            </>
+        );
+    };
+
+    const calculateMealPlanTotals = (mealPlan) => {
+        const todaysMeals = mealPlan.filter(meal => meal.mealDay === currentDay);
+        const totals = todaysMeals.reduce((acc, meal) => {
+            return {
+                calories: acc.calories + Math.round(meal.macronutrients?.calories || 0),
+                protein: acc.protein + Math.round(meal.macronutrients?.protein || 0),
+                fat: acc.fat + Math.round(meal.macronutrients?.fat || 0),
+                carbs: acc.carbs + Math.round(meal.macronutrients?.carbs || 0)
+            };
+        }, { calories: 0, protein: 0, fat: 0, carbs: 0 });
+
+        setMealPlanTotals(totals);
+    };
+
+    const calculateResults = (data) => {
+        const { weight, height, age, gender, activityLevel, goal } = data;
+
+        const bmr = calculateBMR(weight, height, age, gender);
+        const tdee = calculateTDEE(bmr, activityLevel);
+        const targetCalories = adjustCaloriesForGoal(tdee, goal);
+        const { protein, fat, carbs } = calculateMacros(targetCalories, weight, goal);
+
+        const proteinPercentage = Math.round((protein * 4 / targetCalories) * 100);
+        const fatPercentage = Math.round((fat * 9 / targetCalories) * 100);
+        const carbPercentage = Math.round((carbs * 4 / targetCalories) * 100);
+
+        setResults({
+            tdee: targetCalories,
+            proteinTarget: protein,
+            fatTarget: fat,
+            carbTarget: carbs,
+            proteinRatio: proteinPercentage,
+            fatRatio: fatPercentage,
+            carbRatio: carbPercentage
+        });
+    };
+
+    const calculateProgress = (current, target) => {
+        return Math.round((current / target) * 100);
+    };
+
+    if (!results || !userData || !mealPlanTotals) {
+        return (
+            <View style={styles.container}>
+                <Text style={styles.loading}>Loading...</Text>
+            </View>
+        );
+    }
+
+    return (
+        <TouchableOpacity
+            onPress={() => navigation.navigate('NutrientsIndicator')}
+            style={styles.leftPanel}
+        >
+            <Card style={styles.card}>
+                <Card.Content>
+                    <Text variant="titleSmall" style={styles.sectionTitle}>Daily Nutrients Indicator</Text>
+					{renderProgressBar("Calories", calculateTotalCalories(currentDay), results.tdee, "#64B5F6")}
+                    {renderProgressBar("Proteins", calculateTotalProtein(currentDay), results.proteinTarget, "#E57373")}
+                    {renderProgressBar("Fats", calculateTotalFat(currentDay), results.fatTarget, "#FFB74D")}
+                    {renderProgressBar("Carbs", calculateTotalCarbs(currentDay), results.carbTarget, "#81C784")}
+                </Card.Content>
+            </Card>
+        </TouchableOpacity>
+    );
+};
+
+
+
+
+
+
+
+
+
 
   const renderWaterIntake = () => (
     <TouchableOpacity 
@@ -167,7 +291,7 @@ export default function HomeScreen({ navigation }) {
     >
       <Card style={styles.card}>
         <Card.Content>
-          <Text variant="titleSmall" style={styles.sectionTitle}>Water Intake</Text>
+          <Text variant="titleSmall" style={styles.sectionTitle}>Daily Water Intake</Text>
           <View style={styles.waterRow}>
             <Text style={styles.waterText}>{waterIntake.toFixed(1)} / {maxWaterIntake}L</Text>
             <View style={styles.waterControls}>
