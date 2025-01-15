@@ -375,7 +375,6 @@ const renderNutrientsIndicator = () => {
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow:1,
     backgroundColor: '#121212',
   },
   bodyStatsHeader: {
