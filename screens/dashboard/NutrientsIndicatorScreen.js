@@ -1,206 +1,156 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, ProgressBarAndroid } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { auth, db } from '../../config/firebase'; // Adjust the path if needed
-import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { colors } from '../../constants/colors';
+import { auth } from '../../config/firebase';
+import { getFirestore, doc, onSnapshot } from 'firebase/firestore';
+import { calculateBMR, calculateTDEE, adjustCaloriesForGoal, calculateMacros } from '../../utils/calculations';
+import moment from 'moment';
 
-const NutrientsIndicatorScreen = () => {
-    const [nutrientsData, setNutrientsData] = useState({
-        calories: 0,
-        proteins: 0,
-        fats: 0,
-        carbs: 0,
-    });
+const db = getFirestore();
 
-    const [weeklyGoal, setWeeklyGoal] = useState({
-        calories: 2000,
-        proteins: 150,
-        fats: 70,
-        carbs: 250,
-    });
-
-    const [mealData, setMealData] = useState({});
-    const [isEditing, setIsEditing] = useState(false);
+const NutrientsIndicatorScreen = ({ navigation }) => {
+    const [userData, setUserData] = useState(null);
+    const [results, setResults] = useState(null);
+    const [mealPlanTotals, setMealPlanTotals] = useState(null);
+    const currentDay = moment().format('dddd'); // Get current day (e.g., 'Wednesday')
 
     useEffect(() => {
-        const fetchMealData = async () => {
-            if (auth.currentUser) {
-                try {
-                    const userDocRef = doc(db, 'userInfo', auth.currentUser.uid);
-                    const snapshot = await getDoc(userDocRef);
-                    if (snapshot.exists()) {
-                        const data = snapshot.data();
-                        const mealPlan = data?.mealPlan || [];
-
-                        // Process meal data and calculate totals for each day and mealType
-                        const aggregatedData = {};
-
-                        mealPlan.forEach((meal) => {
-                            const { mealDay, mealType, macronutrients } = meal;
-                            if (!aggregatedData[mealDay]) {
-                                aggregatedData[mealDay] = {
-                                    breakfast: { calories: 0, carbs: 0, fats: 0, proteins: 0 },
-                                    lunch: { calories: 0, carbs: 0, fats: 0, proteins: 0 },
-                                    dinner: { calories: 0, carbs: 0, fats: 0, proteins: 0 },
-                                    snacks: { calories: 0, carbs: 0, fats: 0, proteins: 0 },
-                                };
-                            }
-
-                            const mealTypeData = aggregatedData[mealDay][mealType];
-                            if (macronutrients) {
-                                mealTypeData.calories += macronutrients.calories || 0;
-                                mealTypeData.carbs += macronutrients.carbs || 0;
-                                mealTypeData.fats += macronutrients.fats || 0;
-                                mealTypeData.proteins += macronutrients.proteins || 0;
-                            }
-                        });
-
-                        // Calculate totals and apply max limit of 10000
-                        let totalCalories = 0;
-                        let totalCarbs = 0;
-                        let totalFats = 0;
-                        let totalProteins = 0;
-
-                        Object.keys(aggregatedData).forEach((day) => {
-                            Object.keys(aggregatedData[day]).forEach((mealType) => {
-                                totalCalories += aggregatedData[day][mealType].calories;
-                                totalCarbs += aggregatedData[day][mealType].carbs;
-                                totalFats += aggregatedData[day][mealType].fats;
-                                totalProteins += aggregatedData[day][mealType].proteins;
-                            });
-                        });
-
-                        // Apply maximum limit of 10000 for each nutrient
-                        totalCalories = Math.min(totalCalories, 10000);
-                        totalCarbs = Math.min(totalCarbs, 10000);
-                        totalFats = Math.min(totalFats, 10000);
-                        totalProteins = Math.min(totalProteins, 10000);
-
-                        setNutrientsData({
-                            calories: totalCalories,
-                            carbs: totalCarbs,
-                            fats: totalFats,
-                            proteins: totalProteins,
-                        });
-
-                        setMealData(aggregatedData); // Optional: Save the aggregated meal data for display
-                    }
-                } catch (error) {
-                    console.error('Error fetching user data:', error);
-                }
+        // Set up real-time listener for user data
+        const userRef = doc(db, 'userInfo', auth.currentUser.uid);
+        
+        const unsubscribe = onSnapshot(userRef, (doc) => {
+            if (doc.exists()) {
+                const data = doc.data();
+                setUserData(data);
+                calculateResults(data);
+                calculateMealPlanTotals(data.mealPlan || []);
             }
-        };
-        fetchMealData();
+        }, (error) => {
+            console.log('Error getting real-time updates:', error);
+        });
+
+        // Cleanup listener on component unmount
+        return () => unsubscribe();
     }, []);
 
-    const handleSave = async () => {
-        if (auth.currentUser) {
-            try {
-                const updatedData = {
-                    calories: parseFloat(nutrientsData.calories),
-                    proteins: parseFloat(nutrientsData.proteins),
-                    fats: parseFloat(nutrientsData.fats),
-                    carbs: parseFloat(nutrientsData.carbs),
-                };
+    const calculateMealPlanTotals = (mealPlan) => {
+        // Filter meals for current day
+        const todaysMeals = mealPlan.filter(meal => meal.mealDay === currentDay);
+        
+        // Calculate totals
+        const totals = todaysMeals.reduce((acc, meal) => {
+            return {
+                calories: acc.calories + (meal.macronutrients?.calories || 0),
+                protein: acc.protein + (meal.macronutrients?.protein || 0),
+                fat: acc.fat + (meal.macronutrients?.fat || 0),
+                carbs: acc.carbs + (meal.macronutrients?.carbs || 0)
+            };
+        }, { calories: 0, protein: 0, fat: 0, carbs: 0 });
 
-                await setDoc(doc(db, 'userNutrients', auth.currentUser.uid), updatedData);
-                setIsEditing(false);
-            } catch (error) {
-                console.error('Error saving nutrients data:', error);
-            }
-        }
+        setMealPlanTotals(totals);
     };
 
-    const handleInputChange = (field, value) => {
-        setNutrientsData((prevData) => ({
-            ...prevData,
-            [field]: value,
-        }));
+    const calculateResults = (data) => {
+        const { weight, height, age, gender, activityLevel, goal } = data;
+        
+        const bmr = calculateBMR(weight, height, age, gender);
+        const tdee = calculateTDEE(bmr, activityLevel);
+        const targetCalories = adjustCaloriesForGoal(tdee, goal);
+        const { protein, fat, carbs } = calculateMacros(targetCalories, weight, goal);
+
+        const proteinPercentage = Math.round((protein * 4 / targetCalories) * 100);
+        const fatPercentage = Math.round((fat * 9 / targetCalories) * 100);
+        const carbPercentage = Math.round((carbs * 4 / targetCalories) * 100);
+
+        setResults({
+            tdee: targetCalories,
+            proteinTarget: protein,
+            fatTarget: fat,
+            carbTarget: carbs,
+            proteinRatio: proteinPercentage,
+            fatRatio: fatPercentage,
+            carbRatio: carbPercentage
+        });
     };
 
-    const renderProgressBar = (value, goal) => {
-        const progress = Math.min(value / goal, 1); // Cap at 100% progress
+    const calculateProgress = (current, target) => {
+        return Math.round((current / target) * 100);
+    };
+
+    if (!results || !userData || !mealPlanTotals) {
         return (
-            <View style={styles.progressBarContainer}>
-                <ProgressBarAndroid
-                    styleAttr="Horizontal"
-                    indeterminate={false}
-                    progress={progress}
-                    color="#9D4EDD"
-                    style={styles.progressBar}
-                />
-                <Text style={styles.progressText}>{Math.round(progress * 100)}%</Text>
+            <View style={styles.container}>
+                <Text style={styles.loading}>Loading...</Text>
             </View>
         );
-    };
+    }
 
     return (
-        <ScrollView contentContainerStyle={styles.container}>
-            <Text style={styles.header}>Nutrients Indicator</Text>
-
-            {/* My Weekly Goal Title */}
-            <Text style={styles.weeklyGoalTitle}>My Weekly Goal</Text>
-
-            {isEditing ? (
-                <View style={styles.editContainer}>
-                    {['calories', 'proteins', 'fats', 'carbs'].map((field) => (
-                        <View key={field} style={styles.inputContainer}>
-                            <Text style={styles.label}>{field.charAt(0).toUpperCase() + field.slice(1)}</Text>
-                            <TextInput
-                                style={styles.input}
-                                value={nutrientsData[field].toString()}
-                                onChangeText={(value) => handleInputChange(field, value)}
-                                keyboardType="numeric"
-                                placeholder={`Enter your ${field}`}
-                            />
-                            <Text style={styles.recommended}>Recommended: {field === 'calories' ? '2000 kcal' : 'Default'}</Text>
-                        </View>
-                    ))}
-                    <TouchableOpacity style={styles.button} onPress={handleSave}>
-                        <Text style={styles.buttonText}>Save</Text>
-                    </TouchableOpacity>
-                </View>
-            ) : (
-                <View style={styles.statsContainer}>
-                    {['calories', 'proteins', 'fats', 'carbs'].map((field) => (
-                        <View key={field} style={styles.row}>
-                            <Text style={styles.label}>{field.charAt(0).toUpperCase() + field.slice(1)}</Text>
-                            <Text style={styles.value}>
-                                {nutrientsData[field]} {field === 'calories' ? 'kcal' : 'g'}
-                            </Text>
-                        </View>
-                    ))}
-                    <TouchableOpacity style={styles.button} onPress={() => setIsEditing(true)}>
-                        <Text style={styles.buttonText}>Edit Weekly Goal</Text>
-                    </TouchableOpacity>
-                </View>
-            )}
-
-            {/* Progress Bars for Each Macronutrient */}
-            <View style={styles.progressContainer}>
-                {['calories', 'proteins', 'fats', 'carbs'].map((field) => (
-                    <View key={field} style={styles.progressRow}>
-                        <Text style={styles.progressLabel}>{field.charAt(0).toUpperCase() + field.slice(1)}</Text>
-                        {renderProgressBar(nutrientsData[field], weeklyGoal[field])}
-                    </View>
-                ))}
+        <ScrollView style={styles.container}>
+            <View style={styles.headerContainer}>
+                <Text style={styles.title}>Your Daily Targets</Text>
+                <Text style={styles.subtitle}>Target vs. Current Progress for {currentDay}</Text>
             </View>
 
-            {/* Optional: Display meal data for each day and mealType */}
-            <View style={styles.mealSummaryContainer}>
-                {Object.keys(mealData).map((day) => (
-                    <View key={day} style={styles.dayContainer}>
-                        <Text style={styles.dayHeader}>{day}</Text>
-                        {Object.keys(mealData[day]).map((mealType) => (
-                            <View key={mealType} style={styles.mealRow}>
-                                <Text style={styles.mealLabel}>{mealType}</Text>
-                                <Text style={styles.mealValue}>
-                                    Calories: {mealData[day][mealType].calories} kcal, Carbs: {mealData[day][mealType].carbs} g, Fats: {mealData[day][mealType].fats} g, Proteins: {mealData[day][mealType].proteins} g
-                                </Text>
-                            </View>
-                        ))}
-                    </View>
-                ))}
+            <View style={styles.resultContainer}>
+                <View style={styles.macroCard}>
+                    <Text style={styles.macroTitle}>Calories</Text>
+                    <Text style={styles.macroValue}>{results.tdee} kcal</Text>
+                    <Text style={styles.macroProgress}>
+                        Progress: {mealPlanTotals.calories} / {results.tdee} kcal
+                    </Text>
+                    <Text style={[
+                        styles.macroPercentage,
+                        { color: calculateProgress(mealPlanTotals.calories, results.tdee) > 100 ? colors.error : colors.success }
+                    ]}>
+                        {calculateProgress(mealPlanTotals.calories, results.tdee)}% of daily target
+                    </Text>
+                </View>
+
+                <View style={styles.macroCard}>
+                    <Text style={styles.macroTitle}>Protein</Text>
+                    <Text style={styles.macroValue}>{results.proteinTarget}g</Text>
+                    <Text style={styles.macroProgress}>
+                        Progress: {mealPlanTotals.protein} / {results.proteinTarget}g
+                    </Text>
+                    <Text style={[
+                        styles.macroPercentage,
+                        { color: calculateProgress(mealPlanTotals.protein, results.proteinTarget) > 100 ? colors.error : colors.success }
+                    ]}>
+                        {calculateProgress(mealPlanTotals.protein, results.proteinTarget)}% of daily target
+                    </Text>
+                    <Text style={styles.macroRatio}>({results.proteinRatio}% of calories)</Text>
+                </View>
+
+                <View style={styles.macroCard}>
+                    <Text style={styles.macroTitle}>Fat</Text>
+                    <Text style={styles.macroValue}>{results.fatTarget}g</Text>
+                    <Text style={styles.macroProgress}>
+                        Progress: {mealPlanTotals.fat} / {results.fatTarget}g
+                    </Text>
+                    <Text style={[
+                        styles.macroPercentage,
+                        { color: calculateProgress(mealPlanTotals.fat, results.fatTarget) > 100 ? colors.error : colors.success }
+                    ]}>
+                        {calculateProgress(mealPlanTotals.fat, results.fatTarget)}% of daily target
+                    </Text>
+                    <Text style={styles.macroRatio}>({results.fatRatio}% of calories)</Text>
+                </View>
+
+                <View style={styles.macroCard}>
+                    <Text style={styles.macroTitle}>Carbs</Text>
+                    <Text style={styles.macroValue}>{results.carbTarget}g</Text>
+                    <Text style={styles.macroProgress}>
+                        Progress: {mealPlanTotals.carbs} / {results.carbTarget}g
+                    </Text>
+                    <Text style={[
+                        styles.macroPercentage,
+                        { color: calculateProgress(mealPlanTotals.carbs, results.carbTarget) > 100 ? colors.error : colors.success }
+                    ]}>
+                        {calculateProgress(mealPlanTotals.carbs, results.carbTarget)}% of daily target
+                    </Text>
+                    <Text style={styles.macroRatio}>({results.carbRatio}% of calories)</Text>
+                </View>
             </View>
         </ScrollView>
     );
@@ -208,139 +158,65 @@ const NutrientsIndicatorScreen = () => {
 
 const styles = StyleSheet.create({
     container: {
-        marginTop: 48,
-        flexGrow: 1,
-        padding: 16,
-        backgroundColor: '#1E1E1E',
+        flex: 1,
+        backgroundColor: colors.background,
+        padding: 20,
     },
-    header: {
+    headerContainer: {
+        marginTop: 60,
+        marginBottom: 40,
+    },
+    title: {
         fontSize: 28,
         fontWeight: 'bold',
-        color: '#9D4EDD',
-        marginBottom: 24,
-        textAlign: 'center',
+        color: colors.primary,
+        marginBottom: 10,
     },
-    weeklyGoalTitle: {
+    subtitle: {
+        fontSize: 16,
+        color: colors.text,
+    },
+    resultContainer: {
+        flex: 1,
+        gap: 20,
+		marginBottom: 24,
+    },
+    macroCard: {
+        backgroundColor: colors.white,
+        borderRadius: 12,
+        padding: 20,
+        elevation: 2,
+    },
+    macroTitle: {
+        fontSize: 18,
+        color: colors.text,
+        marginBottom: 8,
+    },
+    macroValue: {
         fontSize: 24,
-        fontWeight: '600',
-        color: '#FFFFFF',
-        marginBottom: 16,
-		marginTop: 16,
-        textAlign: 'left',
+        fontWeight: 'bold',
+        color: colors.primary,
     },
-    statsContainer: {
-        backgroundColor: '#2E2E2E',
-        borderRadius: 10,
-        padding: 20,
-        marginBottom: 20,
-        shadowColor: '#000',
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-        elevation: 5,
-    },
-    row: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginBottom: 12,
-    },
-    label: {
-        fontSize: 18,
-        color: '#fff',
-    },
-    value: {
-        fontSize: 18,
-        fontWeight: '600',
-        color: '#9D4EDD',
-    },
-    editContainer: {
-        alignItems: 'center',
-        backgroundColor: '#2E2E2E',
-        padding: 20,
-        borderRadius: 10,
-        shadowColor: '#000',
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-        elevation: 5,
-    },
-    inputContainer: {
-        marginBottom: 16,
-        width: '80%',
-    },
-    input: {
-        width: '100%',
-        height: 40,
-        borderColor: '#9D4EDD',
-        borderWidth: 1,
-        borderRadius: 8,
-        paddingHorizontal: 10,
-        fontSize: 18,
-        color: '#fff',
-    },
-    recommended: {
-        fontSize: 14,
-        color: '#B0B0B0',
+    macroProgress: {
+        fontSize: 16,
+        color: colors.text,
         marginTop: 8,
     },
-    button: {
-        backgroundColor: '#9D4EDD',
-        paddingVertical: 10,
-        paddingHorizontal: 36,
-        borderRadius: 20,
-        alignItems: 'center',
-        marginTop: 16,
-    },
-    buttonText: {
+    macroPercentage: {
         fontSize: 16,
-        color: '#fff',
-        fontWeight: '600',
+        fontWeight: 'bold',
+        marginTop: 4,
     },
-    progressContainer: {
-        marginTop: 24,
-    },
-    progressRow: {
-        marginBottom: 16,
-    },
-    progressLabel: {
-        fontSize: 18,
-        color: '#fff',
-        marginBottom: 8,
-    },
-    progressBarContainer: {
-        width: '100%',
-        alignItems: 'center',
-    },
-    progressBar: {
-        width: '90%',
-        height: 12,
-        borderRadius: 6,
-        marginBottom: 4,
-    },
-    progressText: {
+    macroRatio: {
         fontSize: 14,
-        color: '#9D4EDD',
+        color: colors.textLight,
+        marginTop: 4,
     },
-    mealSummaryContainer: {
-        marginTop: 24,
-    },
-    dayContainer: {
-        marginBottom: 16,
-    },
-    dayHeader: {
-        fontSize: 20,
-        fontWeight: '600',
-        color: '#9D4EDD',
-        marginBottom: 8,
-    },
-    mealRow: {
-        marginBottom: 12,
-    },
-    mealLabel: {
+    loading: {
         fontSize: 18,
-        color: '#fff',
-    },
-    mealValue: {
-        fontSize: 16,
-        color: '#B0B0B0',
+        color: colors.text,
+        textAlign: 'center',
+        marginTop: 50,
     },
 });
 

@@ -171,6 +171,7 @@ const EditMealPlanScreen = () => {
                 <Picker.Item label="Thursday" value="Thursday" />
                 <Picker.Item label="Friday" value="Friday" />
                 <Picker.Item label="Saturday" value="Saturday" />
+				<Picker.Item label="Sunday" value="Sunday" />
             </Picker>
 
             {/* Meal Type Dropdown */}
