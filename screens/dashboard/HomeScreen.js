@@ -133,12 +133,6 @@ const weeklyCaloriesData = {
   );
 
 
-
-
-
-
-
-
 const db = getFirestore();
 
 const renderNutrientsIndicator = () => {
@@ -275,15 +269,6 @@ const renderNutrientsIndicator = () => {
     );
 };
 
-
-
-
-
-
-
-
-
-
   const renderWaterIntake = () => (
     <TouchableOpacity 
       onPress={() => navigation.navigate('WaterIntakeScreen')} 
@@ -390,24 +375,22 @@ const renderNutrientsIndicator = () => {
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
-    padding: 16,
+    flexGrow:1,
     backgroundColor: '#121212',
   },
   bodyStatsHeader: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 16,
-    marginTop: 16,
+    padding: 16,
     color: '#ffffff',
   },
   chartContainer: {
-    marginBottom: 24,
+    padding: 16,
   },
   rowContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 24,
+    padding: 16,
   },
   leftPanel: {
     flex: 1,
@@ -420,6 +403,7 @@ const styles = StyleSheet.create({
   fullWidthPanel: {
     width: '100%',
     marginBottom: 16,
+    padding: 16,
   },
   card: {
     marginBottom: 16,

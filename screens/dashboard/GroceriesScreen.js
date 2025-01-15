@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput } from 'r
 import { Ionicons } from '@expo/vector-icons';
 import ProfileHeader from '../../components/ProfileHeader'; 
 import { auth, db } from '../../config/firebase'; 
-import { doc, getDoc, updateDoc, arrayUnion, onSnapshot } from 'firebase/firestore'; 
+import { doc, updateDoc, arrayUnion, onSnapshot } from 'firebase/firestore'; 
 
 const GroceriesScreen = () => {
     const [groceryList, setGroceryList] = useState([]); 
@@ -21,17 +21,6 @@ const GroceriesScreen = () => {
             return () => unsubscribe();
         }
     }, [userId]);
-
-    const fetchGroceryList = async () => {
-        if (!userId) return;
-        const userRef = doc(db, 'userInfo', userId);
-        const userDoc = await getDoc(userRef);
-        if (userDoc.exists()) {
-            setGroceryList(userDoc.data().groceryList || []);
-        } else {
-            await setDoc(userRef, { groceryList: [] }, { merge: true });
-        }
-    };
 
     const addItem = async () => {
         if (newItem.trim() !== '' && userId) {
@@ -124,7 +113,7 @@ const GroceriesScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#1E1E1E', // Dark background
+        backgroundColor: '#121212', // Dark background
     },
     listHeaderContainer: {
         flexDirection: 'row',
