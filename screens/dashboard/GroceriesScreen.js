@@ -113,7 +113,7 @@ const GroceriesScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#1E1E1E', // Dark background
+        backgroundColor: '#121212', // Dark background
     },
     listHeaderContainer: {
         flexDirection: 'row',
