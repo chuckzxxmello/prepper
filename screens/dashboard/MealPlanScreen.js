@@ -14,26 +14,26 @@ const MealPlanScreen = () => {
     const [mealToDelete, setMealToDelete] = useState(null);
     const navigation = useNavigation();
 
-useEffect(() => {
-    const fetchUserData = async () => {
-        if (auth.currentUser) {
-            try {
-                const userDoc = await getDoc(doc(db, 'userInfo', auth.currentUser.uid));
-                if (userDoc.exists()) {
-                    const data = userDoc.data();
-                    setUserData(data);
-                } else {
-                    console.log('No such document!');
+    useEffect(() => {
+        const fetchUserData = async () => {
+            if (auth.currentUser) {
+                try {
+                    const userDoc = await getDoc(doc(db, 'userInfo', auth.currentUser.uid));
+                    if (userDoc.exists()) {
+                        const data = userDoc.data();
+                        setUserData(data);
+                    } else {
+                        console.log('No such document!');
+                    }
+                } catch (error) {
+                    console.error('Error fetching user data:', error);
                 }
-            } catch (error) {
-                console.error('Error fetching user data:', error);
+            } else {
+                console.log('User is not authenticated');
             }
-        } else {
-            console.log('User is not authenticated');
-        }
-    };
-    fetchUserData();
-}, []);
+        };
+        fetchUserData();
+    }, []);
 
 
     const calculateTotalCalories = (day) => {
@@ -56,38 +56,38 @@ useEffect(() => {
         return mealsForDay.reduce((total, meal) => total + meal.macronutrients?.carbs, 0);
     };
 
-const deleteMeal = async () => {
-    if (mealToDelete && mealToDelete.recipeId) {
-        const recipeId = mealToDelete.recipeId; // Use the number directly for matching
-        console.log('Deleting meal with ID:', recipeId);
+    const deleteMeal = async () => {
+        if (mealToDelete && mealToDelete.recipeId) {
+            const recipeId = mealToDelete.recipeId; // Use the number directly for matching
+            console.log('Deleting meal with ID:', recipeId);
 
-        try {
-            const userDocRef = doc(db, 'userInfo', auth.currentUser.uid); // Reference to user's document
-            const userDoc = await getDoc(userDocRef);
+            try {
+                const userDocRef = doc(db, 'userInfo', auth.currentUser.uid); // Reference to user's document
+                const userDoc = await getDoc(userDocRef);
 
-            if (userDoc.exists()) {
-                const userData = userDoc.data();
-                const updatedMealPlan = userData.mealPlan.filter(meal => meal.recipeId !== recipeId); // Remove the meal
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    const updatedMealPlan = userData.mealPlan.filter(meal => meal.recipeId !== recipeId); // Remove the meal
 
-                // Update the mealPlan array in Firestore
-                await setDoc(userDocRef, { mealPlan: updatedMealPlan }, { merge: true });
+                    // Update the mealPlan array in Firestore
+                    await setDoc(userDocRef, { mealPlan: updatedMealPlan }, { merge: true });
 
-                console.log('Meal deleted successfully');
-                Alert.alert('Success', 'Meal deleted successfully.');
-                setModalVisible(false);
-            } else {
-                console.log('User document does not exist');
-                Alert.alert('Error', 'User document not found.');
+                    console.log('Meal deleted successfully');
+                    Alert.alert('Success', 'Meal deleted successfully.');
+                    setModalVisible(false);
+                } else {
+                    console.log('User document does not exist');
+                    Alert.alert('Error', 'User document not found.');
+                }
+            } catch (error) {
+                console.error('Error deleting meal:', error);
+                Alert.alert('Error', 'Something went wrong while deleting the meal.');
             }
-        } catch (error) {
-            console.error('Error deleting meal:', error);
-            Alert.alert('Error', 'Something went wrong while deleting the meal.');
+        } else {
+            console.error('No valid meal selected for deletion:', mealToDelete);
+            Alert.alert('Error', 'No valid meal selected for deletion.');
         }
-    } else {
-        console.error('No valid meal selected for deletion:', mealToDelete);
-        Alert.alert('Error', 'No valid meal selected for deletion.');
-    }
-};
+    };
 
     const handleDeleteMealClick = (meal) => {
         console.log('Meal selected for deletion:', meal);  // Log the meal object
@@ -99,37 +99,37 @@ const deleteMeal = async () => {
         }
     };
 
-const handleEditMeal = (meal, index, selectedDay) => {
-    console.log('Navigating with:', { mealIndex: index, selectedDay: selectedDay });
+    const handleEditMeal = (meal, index, selectedDay) => {
+        console.log('Navigating with:', { mealIndex: index, selectedDay: selectedDay });
 
-    // Ensure selectedDay and mealIndex are defined before navigating
-    if (selectedDay && index !== undefined) {
-        navigation.navigate('EditMealPlanScreen', { mealIndex: index, selectedDay: selectedDay });
-    } else {
-        Alert.alert('Error', 'Missing meal index or selected day.');
-    }
-};
-	
-	const resetMealPlan = async () => {
-    try {
-        const userDocRef = doc(db, 'userInfo', auth.currentUser.uid); // Reference to user's document
-        const userDoc = await getDoc(userDocRef);
-
-        if (userDoc.exists()) {
-            // Set the mealPlan array to an empty array
-            await setDoc(userDocRef, { mealPlan: [] }, { merge: true });
-
-            console.log('Meal plan reset successfully');
-            Alert.alert('Success', 'Meal plan has been reset.');
+        // Ensure selectedDay and mealIndex are defined before navigating
+        if (selectedDay && index !== undefined) {
+            navigation.navigate('EditMealPlanScreen', { mealIndex: index, selectedDay: selectedDay });
         } else {
-            console.log('User document does not exist');
-            Alert.alert('Error', 'User document not found.');
+            Alert.alert('Error', 'Missing meal index or selected day.');
         }
-    } catch (error) {
-        console.error('Error resetting meal plan:', error);
-        Alert.alert('Error', 'Something went wrong while resetting the meal plan.');
-    }
-};
+    };
+
+    const resetMealPlan = async () => {
+        try {
+            const userDocRef = doc(db, 'userInfo', auth.currentUser.uid); // Reference to user's document
+            const userDoc = await getDoc(userDocRef);
+
+            if (userDoc.exists()) {
+                // Set the mealPlan array to an empty array
+                await setDoc(userDocRef, { mealPlan: [] }, { merge: true });
+
+                console.log('Meal plan reset successfully');
+                Alert.alert('Success', 'Meal plan has been reset.');
+            } else {
+                console.log('User document does not exist');
+                Alert.alert('Error', 'User document not found.');
+            }
+        } catch (error) {
+            console.error('Error resetting meal plan:', error);
+            Alert.alert('Error', 'Something went wrong while resetting the meal plan.');
+        }
+    };
 
     return (
         <ScrollView style={styles.container}>
@@ -165,8 +165,8 @@ const handleEditMeal = (meal, index, selectedDay) => {
 
                             <View style={styles.mealActions}>
                                 <TouchableOpacity onPress={() => handleEditMeal(meal, index, selectedDay)}>
-									<Text style={styles.editText}>Edit</Text>
-								</TouchableOpacity>
+                                    <Text style={styles.editText}>Edit</Text>
+                                </TouchableOpacity>
                                 <TouchableOpacity onPress={() => handleDeleteMealClick(meal)}>
                                     <Text style={styles.deleteText}>Delete</Text>
                                 </TouchableOpacity>
@@ -187,8 +187,8 @@ const handleEditMeal = (meal, index, selectedDay) => {
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.settingButton} onPress={resetMealPlan}>
-				<Text style={styles.settingButtonText}>Reset Entire Meal Plan</Text>
-			</TouchableOpacity>
+                <Text style={styles.settingButtonText}>Reset Entire Meal Plan</Text>
+            </TouchableOpacity>
 
             <Modal
                 animationType="slide"
@@ -323,12 +323,12 @@ const styles = StyleSheet.create({
     editText: {
         color: 'lightgreen',
         fontWeight: 'bold',
-		fontSize: 16,
+        fontSize: 16,
     },
     deleteText: {
         color: '#FF5C5C',
         fontWeight: 'bold',
-		fontSize: 16
+        fontSize: 16
     },
     modalContainer: {
         flex: 1,

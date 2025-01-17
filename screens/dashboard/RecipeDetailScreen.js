@@ -224,20 +224,23 @@ const RecipeDetailScreen = ({ route }) => {
             </View>
 
             {/* Add to Grocery List Button */}
-            <CustomButton
-                title="Add Ingredients to Grocery List"
-                onPress={addIngredientsToGroceryList}
-                type="primary"
-                buttonStyle={styles.button}
-            />
+            <View style={styles.buttonContainer}>
+                <CustomButton
+                    title="Add Ingredients to Grocery List"
+                    onPress={addIngredientsToGroceryList}
+                    type="primary"
+                    buttonStyle={styles.button}
+                />
+            </View>
+            <View style={styles.buttonContainer}>
+                <CustomButton
+                    title="Add Recipe to My Meals"
+                    onPress={() => setModalVisible(true)}
+                    type="primary"
+                    buttonStyle={styles.button}
+                />
+            </View>
 
-            {/* Add Recipe to My Meals Button */}
-            <CustomButton
-                title="Add Recipe to My Meals"
-                onPress={() => setModalVisible(true)}
-                type="primary"
-                buttonStyle={styles.button}
-            />
 
             {/* Meal Plan Modal */}
             <Modal
@@ -249,7 +252,7 @@ const RecipeDetailScreen = ({ route }) => {
                 <View style={styles.modalBackground}>
                     <View style={styles.modalContainer}>
                         <Text style={styles.modalTitle}>Select Meal Details</Text>
-                        
+
                         {/* Meal Time Picker */}
                         <Text style={styles.modalLabel}>Meal Time</Text>
                         <TouchableOpacity
@@ -322,64 +325,77 @@ const RecipeDetailScreen = ({ route }) => {
 const styles = StyleSheet.create({
     container: {
         backgroundColor: colors.background,
+        flex: 1,
     },
     recipeImage: {
         width: '100%',
         height: 250,
+        borderBottomLeftRadius: 20,
+        borderBottomRightRadius: 20,
     },
     detailsWrapper: {
-        margin: 10,
+        margin: 16,
     },
     detailsContainer: {
         backgroundColor: colors.white,
-        padding: 15,
-        borderRadius: 10,
-        elevation: 5,
+        padding: 16,
+        borderRadius: 12,
+        elevation: 8, // Shadow for Android
+        shadowColor: '#000', // Shadow for iOS
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
     },
     title: {
-        fontSize: 22,
-        fontWeight: 'bold',
+        fontSize: 24,
+        fontFamily: 'Inter-SemiBold', // Use SemiBold for headers
         color: colors.text,
         marginBottom: 10,
+        textAlign: 'center',
     },
     timeContainer: {
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'center',
         marginBottom: 15,
     },
     timeText: {
         fontSize: 16,
+        fontFamily: 'Inter-Regular', // Use Regular for body text
         color: colors.text,
         marginLeft: 5,
     },
     nutrientsContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        marginBottom: 15,
+        justifyContent: 'space-between',
     },
     nutrientBox: {
-        flexDirection: 'row',
         alignItems: 'center',
-        marginRight: 10,
         marginBottom: 10,
+        padding: 8,
+        borderRadius: 8,
+        backgroundColor: colors.backgroundLight,
     },
     nutrientLabel: {
         fontSize: 14,
+        fontFamily: 'Inter-Medium',
         color: colors.textLight,
-        marginRight: 5,
     },
     nutrientValue: {
         fontSize: 14,
+        fontFamily: 'Inter-SemiBold',
         color: colors.text,
     },
     sectionTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
+        fontSize: 20,
+        fontFamily: 'Inter-SemiBold',
         color: colors.text,
-        marginTop: 15,
+        marginVertical: 16,
     },
     text: {
         fontSize: 16,
+        fontFamily: 'Inter-Regular',
         color: colors.text,
         marginBottom: 5,
     },
@@ -389,16 +405,27 @@ const styles = StyleSheet.create({
     },
     stepNumber: {
         fontSize: 18,
-        fontWeight: 'bold',
-        color: colors.text,
-        marginRight: 10,
+        fontFamily: 'Inter-Bold',
+        color: colors.primary,
+        marginRight: 8,
     },
     stepText: {
         fontSize: 16,
+        fontFamily: 'Inter-Regular',
         color: colors.text,
+        flex: 1,
+    },
+    buttonContainer: {
+        marginHorizontal: 16, 
+        marginBottom: 12, 
+        width: '70%', 
+        alignSelf: 'center', 
     },
     button: {
-        marginTop: 10,
+        paddingVertical: 10, 
+        borderRadius: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     modalBackground: {
         flex: 1,
@@ -409,38 +436,43 @@ const styles = StyleSheet.create({
     modalContainer: {
         backgroundColor: colors.background,
         padding: 20,
-        borderRadius: 10,
-        width: '80%',
+        borderRadius: 12,
+        width: '90%',
         alignItems: 'center',
     },
     modalTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
+        fontSize: 22,
+        fontFamily: 'Inter-SemiBold',
         color: colors.text,
         marginBottom: 20,
     },
     modalLabel: {
         fontSize: 16,
+        fontFamily: 'Inter-Regular',
         color: colors.textLight,
-        marginBottom: 5,
+        marginBottom: 10,
     },
     modalInput: {
-        backgroundColor: colors.white,
+        backgroundColor: colors.backgroundLight,
         width: '100%',
-        padding: 10,
-        borderRadius: 5,
-        marginBottom: 15,
+        padding: 12,
+        borderRadius: 8,
+        marginBottom: 12,
+        color: colors.text,
     },
     closeModalButton: {
-        padding: 10,
+        paddingVertical: 12,
+        paddingHorizontal: 24,
         backgroundColor: colors.primary,
-        borderRadius: 5,
-        marginTop: 10,
+        borderRadius: 8,
+        marginTop: 16,
     },
     closeModalText: {
-        color: colors.white,
         fontSize: 16,
+        fontFamily: 'Inter-Medium',
+        color: colors.white,
     },
 });
+
 
 export default RecipeDetailScreen;

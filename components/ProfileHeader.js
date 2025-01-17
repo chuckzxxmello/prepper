@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons'; // Icons for UI
 import { auth, db } from '../config/firebase'; // Ensure the path is correct based on your project structure
 import { doc, getDoc } from 'firebase/firestore';
+import globalStyle from '../constants/GlobalStyle'; // Import the global font styles
 
 const ProfileHeader = () => {
     const [userData, setUserData] = useState(null);
@@ -30,7 +31,9 @@ const ProfileHeader = () => {
     return (
         <View style={styles.headerContainer}>
             <TouchableOpacity onPress={() => navigation.navigate('ProfileScreen')}>
-                <Text style={styles.userName}>{userData?.fullName || 'User'}</Text>
+                <Text style={[globalStyle.textSemiBold, styles.userName]}>
+                    {userData?.fullName || 'User'}
+                </Text>
             </TouchableOpacity>
             <TouchableOpacity
                 style={styles.calculatorIcon}
@@ -60,7 +63,6 @@ const styles = StyleSheet.create({
     userName: {
         marginLeft: 15,
         fontSize: 20,
-        fontWeight: 'bold',
         color: '#FFFFFF', // White text for header
     },
     calculatorIcon: {

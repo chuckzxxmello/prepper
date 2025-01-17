@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import ProfileHeader from '../../components/ProfileHeader'; 
 import { auth, db } from '../../config/firebase'; 
 import { doc, updateDoc, arrayUnion, onSnapshot } from 'firebase/firestore'; 
+import globalStyle from '../../constants/GlobalStyle'; // Import global font styles
 
 const GroceriesScreen = () => {
     const [groceryList, setGroceryList] = useState([]); 
@@ -15,7 +16,7 @@ const GroceriesScreen = () => {
             const userRef = doc(db, 'userInfo', userId);
             const unsubscribe = onSnapshot(userRef, (snapshot) => {
                 if (snapshot.exists()) {
-                    setGroceryList(snapshot.data().groceryList || [])
+                    setGroceryList(snapshot.data().groceryList || []);
                 }
             });
             return () => unsubscribe();
@@ -70,9 +71,13 @@ const GroceriesScreen = () => {
                 />
             </TouchableOpacity>
             <Text
-                style={[styles.listItemText, item.checked && styles.checkedText]}
+                style={[
+                    globalStyle.textRegular, // Apply global font style
+                    styles.listItemText, 
+                    item.checked && styles.checkedText
+                ]}
             >
-                {item.name}
+                {item.name || ''} {/* Ensure item.name is always a string */}
             </Text>
             <TouchableOpacity onPress={() => removeItem(index)}>
                 <Ionicons name="close-circle" size={24} color="#BB86FC" />
@@ -84,9 +89,9 @@ const GroceriesScreen = () => {
         <View style={styles.container}>
             <ProfileHeader />
             <View style={styles.listHeaderContainer}>
-                <Text style={styles.subtitle}>Grocery List</Text>
+                <Text style={[globalStyle.textBold, styles.subtitle]}>Grocery List</Text> {/* Apply global font */}
                 <TouchableOpacity onPress={clearAllItems}>
-                    <Text style={styles.clearAllText}>Clear All</Text>
+                    <Text style={[globalStyle.textRegular, styles.clearAllText]}>Clear All</Text>
                 </TouchableOpacity>
             </View>
             <View style={styles.inputContainer}>
@@ -94,7 +99,7 @@ const GroceriesScreen = () => {
                     <Ionicons name="add-circle" size={28} color="#6A1B9A" />
                 </TouchableOpacity>
                 <TextInput
-                    style={styles.input}
+                    style={[globalStyle.textRegular, styles.input]} // Apply global font
                     placeholder="Add to list"
                     value={newItem}
                     onChangeText={setNewItem}
@@ -104,7 +109,7 @@ const GroceriesScreen = () => {
             <FlatList
                 data={groceryList}
                 renderItem={renderItem}
-                keyExtractor={(item, index) => index.toString()}
+                keyExtractor={(item, index) => `${item.name || 'item'}-${index}`} // Use a unique key
             />
         </View>
     );
@@ -124,9 +129,8 @@ const styles = StyleSheet.create({
         marginHorizontal: 16,
     },
     subtitle: {
-		fontSize: 24,
-		fontWeight: 'bold',
-		color: '#ffffff',
+        fontSize: 24,
+        color: '#ffffff',
     },
     inputContainer: {
         flexDirection: 'row',
@@ -158,14 +162,12 @@ const styles = StyleSheet.create({
         flex: 1,
         marginLeft: 10,
         fontSize: 16,
-        color: '#FFF', // White text for items
     },
     checkedText: {
         textDecorationLine: 'line-through',
         color: '#888', // Lighter color for checked items
     },
     clearAllText: {
-        color: '#6A1B9A',
         fontSize: 14,
         fontWeight: '600',
     },

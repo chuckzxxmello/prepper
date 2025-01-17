@@ -1,10 +1,10 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
 import RecipeScreen from '../screens/dashboard/RecipeScreen';
 import HomeScreen from '../screens/dashboard/HomeScreen';
 import GroceriesScreen from '../screens/dashboard/GroceriesScreen';
+import globalStyle from '../constants/GlobalStyle'; // Import global styles
 
 const Tab = createBottomTabNavigator();
 
@@ -34,8 +34,8 @@ const MainTabs = () => {
                     elevation: 5,
                 },
                 tabBarLabelStyle: {
-                    fontSize: 12,
-                    color: '#ffffff', // White text for dark mode
+                    ...globalStyle.textRegular, // Apply global font for labels
+                    fontSize: 12, // Ensure the font size matches the design
                 },
             })}
         >

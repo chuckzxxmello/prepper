@@ -4,6 +4,7 @@ import axios from 'axios';
 import ProfileHeader from '../../components/ProfileHeader';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { colors } from '../../constants/colors';
+import globalStyle from '../../constants/GlobalStyle'; // Import global font styles
 
 const RecipeScreen = ({ navigation }) => {
     const [query, setQuery] = useState('');
@@ -78,7 +79,7 @@ const RecipeScreen = ({ navigation }) => {
     };
 
     const renderItem = ({ item }) => (
-        <TouchableOpacity 
+        <TouchableOpacity
             onPress={() => navigation.navigate('RecipeDetail', { recipe: item })}
             activeOpacity={0.8}
         >
@@ -86,13 +87,15 @@ const RecipeScreen = ({ navigation }) => {
                 <Image source={{ uri: item.image }} style={styles.recipeImage} />
                 <View style={styles.recipeDetails}>
                     <View style={styles.recipeHeader}>
-                        <Text style={styles.recipeTitle}>{item.title}</Text>
+                        <Text style={[globalStyle.textSemiBold, styles.recipeTitle]}>{item.title}</Text>
                         <View style={styles.recipeTimeContainer}>
                             <Icon name="access-time" size={14} color="#BBB" />
-                            <Text style={styles.recipeTime}>{item.readyInMinutes} mins</Text>
+                            <Text style={[globalStyle.textRegular, styles.recipeTime]}>
+                                {item.readyInMinutes} mins
+                            </Text>
                         </View>
                     </View>
-                    <Text style={styles.recipeInfo}>
+                    <Text style={[globalStyle.textRegular, styles.recipeInfo]}>
                         Calories: {item.nutrition?.nutrients.find(n => n.name === 'Calories')?.amount || 'N/A'}
                     </Text>
                 </View>
@@ -113,11 +116,11 @@ const RecipeScreen = ({ navigation }) => {
         <View style={styles.container}>
             <ProfileHeader />
             {/* Added subtitle */}
-            <Text style={styles.subtitle}>Recipes</Text>
+            <Text style={[globalStyle.textBold, styles.subtitle]}>Recipes</Text>
             <View style={[styles.searchContainer, isFocused && styles.searchContainerFocused]}>
                 <Icon name="search" size={20} color={isFocused ? colors.primary : '#BBB'} style={styles.searchIcon} />
                 <TextInput
-                    style={styles.searchInput}
+                    style={[globalStyle.textLight, styles.searchInput]}
                     placeholder="Search for recipes..."
                     placeholderTextColor="#BBB"
                     value={query}
@@ -153,7 +156,6 @@ const styles = StyleSheet.create({
     },
     subtitle: {
         fontSize: 24,
-        fontWeight: 'bold',
         color: '#ffffff',
         marginTop: 20,  // Space above the subtitle
         marginLeft: 20, // Align to the left
@@ -211,7 +213,6 @@ const styles = StyleSheet.create({
     },
     recipeTitle: {
         fontSize: 16,
-        fontWeight: 'bold',
         flex: 1,
         flexWrap: 'wrap',
         maxWidth: '70%', // Ensure the title doesn't overlap with the time

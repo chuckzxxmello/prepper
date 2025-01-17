@@ -1,20 +1,23 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { colors } from '../constants/colors';
+import globalStyle from '../constants/GlobalStyle'; // Import GlobalStyle
 
-const CustomButton = ({ title, onPress, type = 'primary', buttonStyle }) => {
+const CustomButton = ({ title, onPress, type = 'primary', buttonStyle, textStyle }) => {
   return (
     <TouchableOpacity 
       style={[
         styles.button, 
         type === 'primary' ? styles.primaryButton : styles.secondaryButton,
-        buttonStyle // Apply the buttonStyle prop here
+        buttonStyle 
       ]} 
       onPress={onPress}
     >
       <Text style={[
-        styles.buttonText,
-        type === 'primary' ? styles.primaryText : styles.secondaryText
+        globalStyle.textSemiBold, 
+        styles.buttonText, 
+        type === 'primary' ? styles.primaryText : styles.secondaryText,
+        textStyle 
       ]}>
         {title}
       </Text>
@@ -40,7 +43,6 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 16,
-    fontWeight: '600',
   },
   primaryText: {
     color: 'white',

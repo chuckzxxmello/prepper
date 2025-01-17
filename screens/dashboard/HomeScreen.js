@@ -8,6 +8,7 @@ import { doc, getDoc, setDoc, getFirestore, onSnapshot } from 'firebase/firestor
 import moment from 'moment';
 
 import { calculateBMR, calculateTDEE, adjustCaloriesForGoal, calculateMacros } from '../../utils/calculations';
+import lobalStyle from '../../constants/GlobalStyle'; // Import global styles
 
 export default function HomeScreen({ navigation }) {
   const [waterIntake, setWaterIntake] = useState(0);
@@ -372,14 +373,16 @@ export default function HomeScreen({ navigation }) {
   );
 }
 
+import globalStyle from '../../constants/GlobalStyle'; // Import your global styles
+
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#121212',
     flex: 1,
   },
   bodyStatsHeader: {
+    ...globalStyle.textBold, // Apply global bold font
     fontSize: 24,
-    fontWeight: 'bold',
     padding: 16,
     color: '#ffffff',
   },
@@ -412,8 +415,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#333333',
   },
   sectionTitle: {
+    ...globalStyle.textSemiBold, // Apply global semi-bold font
     marginBottom: 8,
-    fontWeight: 'bold',
     color: '#BB86FC',
   },
   nutrientRow: {
@@ -422,9 +425,11 @@ const styles = StyleSheet.create({
     marginVertical: 4,
   },
   nutrientText: {
+    ...globalStyle.textRegular, // Apply global regular font
     color: '#ffffff',
   },
   waterText: {
+    ...globalStyle.textRegular, // Apply global regular font
     color: '#ffffff',
   },
   waterRow: {
@@ -440,8 +445,8 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
   },
   lastTimeText: {
+    ...globalStyle.textSmall, // Apply global small text style
     marginTop: 8,
-    fontSize: 12,
     color: '#757575',
   },
   mealHeader: {
@@ -456,9 +461,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   mealTitle: {
-    color: '#ffffff',
+    ...globalStyle.textBold, // Apply global bold font
     fontSize: 16,
-    fontWeight: 'bold',
+    color: '#ffffff',
     marginBottom: 4,
   },
   mealDetails: {
@@ -467,21 +472,25 @@ const styles = StyleSheet.create({
     marginVertical: 4,
   },
   mealType: {
+    ...globalStyle.textRegular, // Apply global regular font
     color: '#BB86FC',
     fontSize: 14,
   },
   mealTime: {
+    ...globalStyle.textRegular, // Apply global regular font
     color: '#BB86FC',
     fontSize: 14,
   },
   caloriesText: {
+    ...globalStyle.textRegular, // Apply global regular font
     color: '#999999',
     fontSize: 14,
     marginTop: 4,
   },
   noMealsText: {
+    ...globalStyle.textRegular, // Apply global regular font
     color: '#757575',
     textAlign: 'center',
     marginVertical: 16,
-  }
+  },
 });

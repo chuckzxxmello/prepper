@@ -5,6 +5,7 @@ import { auth } from '../../config/firebase';
 import { getFirestore, doc, onSnapshot } from 'firebase/firestore';
 import { calculateBMR, calculateTDEE, adjustCaloriesForGoal, calculateMacros } from '../../utils/calculations';
 import moment from 'moment';
+import globalStyle from '../../constants/GlobalStyle'; // Import global fonts
 
 const db = getFirestore();
 
@@ -15,7 +16,6 @@ const NutrientsIndicatorScreen = ({ navigation }) => {
     const currentDay = moment().format('dddd'); // Get current day (e.g., 'Wednesday')
 
     useEffect(() => {
-        // Set up real-time listener for user data
         const userRef = doc(db, 'userInfo', auth.currentUser.uid);
         
         const unsubscribe = onSnapshot(userRef, (doc) => {
@@ -29,15 +29,12 @@ const NutrientsIndicatorScreen = ({ navigation }) => {
             console.log('Error getting real-time updates:', error);
         });
 
-        // Cleanup listener on component unmount
         return () => unsubscribe();
     }, []);
 
     const calculateMealPlanTotals = (mealPlan) => {
-        // Filter meals for current day
         const todaysMeals = mealPlan.filter(meal => meal.mealDay === currentDay);
         
-        // Calculate totals
         const totals = todaysMeals.reduce((acc, meal) => {
             return {
                 calories: acc.calories + (meal.macronutrients?.calories || 0),
@@ -80,7 +77,7 @@ const NutrientsIndicatorScreen = ({ navigation }) => {
     if (!results || !userData || !mealPlanTotals) {
         return (
             <View style={styles.container}>
-                <Text style={styles.loading}>Loading...</Text>
+                <Text style={[globalStyle.textRegular, styles.loading]}>Loading...</Text>
             </View>
         );
     }
@@ -88,18 +85,22 @@ const NutrientsIndicatorScreen = ({ navigation }) => {
     return (
         <ScrollView style={styles.container}>
             <View style={styles.headerContainer}>
-                <Text style={styles.title}>Your Daily Targets</Text>
-                <Text style={styles.subtitle}>Target vs. Current Progress for {currentDay}</Text>
+                <Text style={[globalStyle.textSemiBold, styles.title]}>Your Daily Targets</Text>
+                <Text style={[globalStyle.textRegular, styles.subtitle]}>
+                    Target vs. Current Progress for {currentDay}
+                </Text>
             </View>
 
             <View style={styles.resultContainer}>
+                {/* Calories */}
                 <View style={styles.macroCard}>
-                    <Text style={styles.macroTitle}>Calories</Text>
-                    <Text style={styles.macroValue}>{results.tdee} kcal</Text>
-                    <Text style={styles.macroProgress}>
+                    <Text style={[globalStyle.textSemiBold, styles.macroTitle]}>Calories</Text>
+                    <Text style={[globalStyle.textLarge, styles.macroValue]}>{results.tdee} kcal</Text>
+                    <Text style={[globalStyle.textRegular, styles.macroProgress]}>
                         Progress: {mealPlanTotals.calories} / {results.tdee} kcal
                     </Text>
                     <Text style={[
+                        globalStyle.textBold,
                         styles.macroPercentage,
                         { color: calculateProgress(mealPlanTotals.calories, results.tdee) > 100 ? colors.error : colors.success }
                     ]}>
@@ -107,49 +108,61 @@ const NutrientsIndicatorScreen = ({ navigation }) => {
                     </Text>
                 </View>
 
+                {/* Protein */}
                 <View style={styles.macroCard}>
-                    <Text style={styles.macroTitle}>Protein</Text>
-                    <Text style={styles.macroValue}>{results.proteinTarget}g</Text>
-                    <Text style={styles.macroProgress}>
+                    <Text style={[globalStyle.textSemiBold, styles.macroTitle]}>Protein</Text>
+                    <Text style={[globalStyle.textLarge, styles.macroValue]}>{results.proteinTarget}g</Text>
+                    <Text style={[globalStyle.textRegular, styles.macroProgress]}>
                         Progress: {mealPlanTotals.protein} / {results.proteinTarget}g
                     </Text>
                     <Text style={[
+                        globalStyle.textBold,
                         styles.macroPercentage,
                         { color: calculateProgress(mealPlanTotals.protein, results.proteinTarget) > 100 ? colors.error : colors.success }
                     ]}>
                         {calculateProgress(mealPlanTotals.protein, results.proteinTarget)}% of daily target
                     </Text>
-                    <Text style={styles.macroRatio}>({results.proteinRatio}% of calories)</Text>
+                    <Text style={[globalStyle.textSmall, styles.macroRatio]}>
+                        ({results.proteinRatio}% of calories)
+                    </Text>
                 </View>
 
+                {/* Fat */}
                 <View style={styles.macroCard}>
-                    <Text style={styles.macroTitle}>Fat</Text>
-                    <Text style={styles.macroValue}>{results.fatTarget}g</Text>
-                    <Text style={styles.macroProgress}>
+                    <Text style={[globalStyle.textSemiBold, styles.macroTitle]}>Fat</Text>
+                    <Text style={[globalStyle.textLarge, styles.macroValue]}>{results.fatTarget}g</Text>
+                    <Text style={[globalStyle.textRegular, styles.macroProgress]}>
                         Progress: {mealPlanTotals.fat} / {results.fatTarget}g
                     </Text>
                     <Text style={[
+                        globalStyle.textBold,
                         styles.macroPercentage,
                         { color: calculateProgress(mealPlanTotals.fat, results.fatTarget) > 100 ? colors.error : colors.success }
                     ]}>
                         {calculateProgress(mealPlanTotals.fat, results.fatTarget)}% of daily target
                     </Text>
-                    <Text style={styles.macroRatio}>({results.fatRatio}% of calories)</Text>
+                    <Text style={[globalStyle.textSmall, styles.macroRatio]}>
+                        ({results.fatRatio}% of calories)
+                    </Text>
                 </View>
 
+                {/* Carbs */}
                 <View style={styles.macroCard}>
-                    <Text style={styles.macroTitle}>Carbs</Text>
-                    <Text style={styles.macroValue}>{results.carbTarget}g</Text>
-                    <Text style={styles.macroProgress}>
+                    <Text style={[globalStyle.textSemiBold, styles.macroTitle]}>Carbs</Text>
+                    <Text style={[globalStyle.textLarge, styles.macroValue]}>{results.carbTarget}g</Text>
+                    <Text style={[globalStyle.textRegular, styles.macroProgress]}>
                         Progress: {mealPlanTotals.carbs} / {results.carbTarget}g
                     </Text>
                     <Text style={[
+                        globalStyle.textBold,
                         styles.macroPercentage,
                         { color: calculateProgress(mealPlanTotals.carbs, results.carbTarget) > 100 ? colors.error : colors.success }
                     ]}>
                         {calculateProgress(mealPlanTotals.carbs, results.carbTarget)}% of daily target
                     </Text>
-                    <Text style={styles.macroRatio}>({results.carbRatio}% of calories)</Text>
+                    <Text style={[globalStyle.textSmall, styles.macroRatio]}>
+                        ({results.carbRatio}% of calories)
+                    </Text>
                 </View>
             </View>
         </ScrollView>
@@ -168,7 +181,6 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 28,
-        fontWeight: 'bold',
         color: colors.primary,
         marginBottom: 10,
     },
@@ -179,7 +191,7 @@ const styles = StyleSheet.create({
     resultContainer: {
         flex: 1,
         gap: 20,
-		marginBottom: 24,
+        marginBottom: 24,
     },
     macroCard: {
         backgroundColor: colors.white,
@@ -188,33 +200,24 @@ const styles = StyleSheet.create({
         elevation: 2,
     },
     macroTitle: {
-        fontSize: 18,
         color: colors.text,
         marginBottom: 8,
     },
     macroValue: {
-        fontSize: 24,
-        fontWeight: 'bold',
         color: colors.primary,
     },
     macroProgress: {
-        fontSize: 16,
         color: colors.text,
         marginTop: 8,
     },
     macroPercentage: {
-        fontSize: 16,
-        fontWeight: 'bold',
         marginTop: 4,
     },
     macroRatio: {
-        fontSize: 14,
-        color: colors.textLight,
         marginTop: 4,
+        color: colors.textLight,
     },
     loading: {
-        fontSize: 18,
-        color: colors.text,
         textAlign: 'center',
         marginTop: 50,
     },
