@@ -9,9 +9,10 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { auth, db } from '../../config/firebase'; // Adjust the path if needed
+import { auth, db } from '../../config/firebase';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import RNPickerSelect from 'react-native-picker-select'; // Import Picker
+import RNPickerSelect from 'react-native-picker-select';
+import globalStyle from '../../constants/GlobalStyle'; // Import global styles
 
 const MeScreen = () => {
     const [userData, setUserData] = useState({
@@ -44,7 +45,6 @@ const MeScreen = () => {
                             activityLevel: data.activityLevel || '',
                         });
 
-                        // Map Firestore values to UI-friendly values
                         setSelectedGoal(mapGoalToUI(data.goal || 'gain'));
                         setSelectedGender(data.gender || 'male');
                         setSelectedActivityLevel(mapActivityLevelToUI(data.activityLevel || 'sedentary'));
@@ -68,7 +68,7 @@ const MeScreen = () => {
             case 'maintain':
                 return 'Maintain Weight';
             default:
-                return 'Gain Weight'; // Default value
+                return 'Gain Weight';
         }
     };
 
@@ -85,7 +85,7 @@ const MeScreen = () => {
             case 'veryActive':
                 return 'Very Active';
             default:
-                return 'Sedentary'; // Default value
+                return 'Sedentary';
         }
     };
 
@@ -98,19 +98,16 @@ const MeScreen = () => {
 
     const handleSave = async () => {
         if (auth.currentUser) {
-            // Mapping selected goal value to Firestore-friendly format
             const goalValue = selectedGoal === 'Lose Weight' ? 'lose' : selectedGoal === 'Maintain Weight' ? 'maintain' : 'gain';
 
-            // Activity level mapping
             const activityMap = {
-                'Sedentary': 'sedentary',
-                'Light': 'light',
-                'Moderate': 'moderate',
-                'Active': 'active',
-                'Very Active': 'veryActive',
+                Sedentary: 'sedentary',
+                Light: 'light',
+                Moderate: 'moderate',
+                Active: 'active',
+                VeryActive: 'veryActive',
             };
 
-            // Ensure selected activity level is mapped correctly
             const activityLevelValue = activityMap[selectedActivityLevel] || '';
 
             try {
@@ -122,7 +119,7 @@ const MeScreen = () => {
                     weight: userData.weight,
                     gender: selectedGender,
                     activityLevel: activityLevelValue,
-                }); // Use updateDoc instead of setDoc to avoid overwriting entire document
+                });
                 console.log('User data updated successfully');
                 navigation.goBack();
             } catch (error) {
@@ -136,9 +133,9 @@ const MeScreen = () => {
             <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
                 <Ionicons name="arrow-back" size={24} color="#fff" />
             </TouchableOpacity>
-            <Text style={styles.header}>Physical Stats</Text>
+            <Text style={[globalStyle.textSemiBold, styles.header]}>Physical Stats</Text>
             <View style={styles.form}>
-                <Text style={styles.subHeader}>Goal</Text>
+                <Text style={[globalStyle.textSemiBold, styles.subHeader]}>Goal</Text>
                 <RNPickerSelect
                     onValueChange={(value) => setSelectedGoal(value)}
                     items={[
@@ -146,38 +143,38 @@ const MeScreen = () => {
                         { label: 'Maintain Weight', value: 'Maintain Weight' },
                         { label: 'Gain Weight', value: 'Gain Weight' },
                     ]}
-                    value={selectedGoal || 'Lose Weight'} // Default value as fetched from Firestore
+                    value={selectedGoal || 'Lose Weight'}
                     style={pickerSelectStyles}
                 />
-                <Text style={styles.subHeader}>Age</Text>
+                <Text style={[globalStyle.textSemiBold, styles.subHeader]}>Age</Text>
                 <TextInput
-                    style={styles.input}
+                    style={[globalStyle.textRegular, styles.input]}
                     value={userData.age}
                     onChangeText={(value) => handleInputChange('age', value)}
                 />
-                <Text style={styles.subHeader}>Height (cm)</Text>
+                <Text style={[globalStyle.textSemiBold, styles.subHeader]}>Height (cm)</Text>
                 <TextInput
-                    style={styles.input}
+                    style={[globalStyle.textRegular, styles.input]}
                     value={userData.height}
                     onChangeText={(value) => handleInputChange('height', value)}
                 />
-                <Text style={styles.subHeader}>Weight (kg)</Text>
+                <Text style={[globalStyle.textSemiBold, styles.subHeader]}>Weight (kg)</Text>
                 <TextInput
-                    style={styles.input}
+                    style={[globalStyle.textRegular, styles.input]}
                     value={userData.weight}
                     onChangeText={(value) => handleInputChange('weight', value)}
                 />
-                <Text style={styles.subHeader}>Gender</Text>
+                <Text style={[globalStyle.textSemiBold, styles.subHeader]}>Gender</Text>
                 <RNPickerSelect
                     onValueChange={(value) => setSelectedGender(value)}
                     items={[
                         { label: 'Male', value: 'male' },
                         { label: 'Female', value: 'female' },
                     ]}
-                    value={selectedGender || 'male'} // Default value as fetched from Firestore
+                    value={selectedGender || 'male'}
                     style={pickerSelectStyles}
                 />
-                <Text style={styles.subHeader}>Activity Level</Text>
+                <Text style={[globalStyle.textSemiBold, styles.subHeader]}>Activity Level</Text>
                 <RNPickerSelect
                     onValueChange={(value) => setSelectedActivityLevel(value)}
                     items={[
@@ -187,25 +184,22 @@ const MeScreen = () => {
                         { label: 'Active', value: 'Active' },
                         { label: 'Very Active', value: 'Very Active' },
                     ]}
-                    value={selectedActivityLevel || 'Sedentary'} // Default value as fetched from Firestore
+                    value={selectedActivityLevel || 'Sedentary'}
                     style={pickerSelectStyles}
                 />
                 <TouchableOpacity style={styles.calculateButton} onPress={handleSave}>
-                    <Text style={styles.calculateButtonText}>Save</Text>
+                    <Text style={[globalStyle.textSemiBold, styles.calculateButtonText]}>Save</Text>
                 </TouchableOpacity>
             </View>
         </View>
     );
 };
 
-const { width } = Dimensions.get('window');
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 20,
-        backgroundColor: '#1E1E1E', // Dark background
-        marginTop: 40,
+        backgroundColor: '#1E1E1E',
     },
     backButton: {
         position: 'absolute',
@@ -215,15 +209,13 @@ const styles = StyleSheet.create({
     },
     header: {
         fontSize: 24,
-        fontWeight: 'bold',
         textAlign: 'center',
         marginBottom: 30,
-        color: '#FFFFFF', // White text for header
+        color: '#FFFFFF',
     },
     subHeader: {
         marginVertical: 8,
         fontSize: 18,
-        fontWeight: 'bold',
         color: '#ffffff',
     },
     input: {
@@ -237,20 +229,18 @@ const styles = StyleSheet.create({
         borderRadius: 8,
     },
     calculateButton: {
-        backgroundColor: '#6a1b9a', // Purple background for calculate button
+        backgroundColor: '#6a1b9a',
         padding: 16,
         borderRadius: 8,
         alignItems: 'center',
         marginVertical: 16,
     },
     calculateButtonText: {
-        color: '#fff', // White text for calculate button
-        fontWeight: 'bold',
         fontSize: 16,
+        color: '#fff',
     },
 });
 
-// Custom style for the picker select
 const pickerSelectStyles = StyleSheet.create({
     inputAndroid: {
         backgroundColor: '#2d2d2d',
@@ -258,6 +248,7 @@ const pickerSelectStyles = StyleSheet.create({
         borderRadius: 8,
         borderColor: '#4a148c',
         marginBottom: 10,
+        paddingLeft: 8,
     },
 });
 
