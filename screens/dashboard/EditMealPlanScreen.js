@@ -6,6 +6,7 @@ import { doc, updateDoc, getDoc } from 'firebase/firestore';
 import moment from 'moment';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
+import globalStyle from '../../constants/GlobalStyle'; // Import GlobalStyle
 
 const EditMealPlanScreen = () => {
     const navigation = useNavigation();
@@ -156,12 +157,12 @@ const EditMealPlanScreen = () => {
 
     return (
         <ScrollView style={styles.container}>
-            <Text style={styles.title}>Edit Meal Plan for {mealDay}</Text>
+            <Text style={[globalStyle.textBold, styles.title]}>Edit Meal Plan for {mealDay}</Text>
 
             {/* Meal Day Dropdown */}
-            <Text style={styles.label}>Meal Day</Text>
+            <Text style={[globalStyle.textRegular, styles.label]}>Meal Day</Text>
             <Picker
-                style={styles.picker}
+                style={[globalStyle.picker, styles.picker]}
                 selectedValue={mealDay}
                 onValueChange={(itemValue) => setMealDay(itemValue)}
             >
@@ -171,13 +172,13 @@ const EditMealPlanScreen = () => {
                 <Picker.Item label="Thursday" value="Thursday" />
                 <Picker.Item label="Friday" value="Friday" />
                 <Picker.Item label="Saturday" value="Saturday" />
-				<Picker.Item label="Sunday" value="Sunday" />
+                <Picker.Item label="Sunday" value="Sunday" />
             </Picker>
 
             {/* Meal Type Dropdown */}
-            <Text style={styles.label}>Meal Type</Text>
+            <Text style={[globalStyle.textRegular, styles.label]}>Meal Type</Text>
             <Picker
-                style={styles.picker}
+                style={[globalStyle.picker, styles.picker]}
                 selectedValue={mealType}
                 onValueChange={(itemValue) => setMealType(itemValue)}
             >
@@ -187,7 +188,7 @@ const EditMealPlanScreen = () => {
             </Picker>
 
             <TextInput
-                style={styles.input}
+                style={[globalStyle.input, styles.input]}
                 placeholder="Meal Name"
                 placeholderTextColor="#bbb"
                 value={mealName}
@@ -195,7 +196,7 @@ const EditMealPlanScreen = () => {
             />
 
             <TextInput
-                style={styles.input}
+                style={[globalStyle.input, styles.input]}
                 placeholder="Calories"
                 value={calories}
                 keyboardType="numeric"
@@ -203,7 +204,7 @@ const EditMealPlanScreen = () => {
             />
 
             <TextInput
-                style={styles.input}
+                style={[globalStyle.input, styles.input]}
                 placeholder="Protein (g)"
                 value={protein}
                 keyboardType="numeric"
@@ -211,7 +212,7 @@ const EditMealPlanScreen = () => {
             />
 
             <TextInput
-                style={styles.input}
+                style={[globalStyle.input, styles.input]}
                 placeholder="Fat (g)"
                 value={fat}
                 keyboardType="numeric"
@@ -219,7 +220,7 @@ const EditMealPlanScreen = () => {
             />
 
             <TextInput
-                style={styles.input}
+                style={[globalStyle.input, styles.input]}
                 placeholder="Carbs (g)"
                 value={carbs}
                 keyboardType="numeric"
@@ -227,8 +228,8 @@ const EditMealPlanScreen = () => {
             />
 
             {/* Meal Time Picker */}
-            <Text style={styles.label}>Meal Time</Text>
-            <TouchableOpacity onPress={() => setShowTimePicker(true)} style={styles.input}>
+            <Text style={[globalStyle.textRegular, styles.label]}>Meal Time</Text>
+            <TouchableOpacity onPress={() => setShowTimePicker(true)} style={[globalStyle.input, styles.input]}>
                 <Text style={{ color: mealTime ? '#ffffff' : '#B0B0B0' }}>
                     {mealTime || 'Select Time'}
                 </Text>
@@ -245,8 +246,8 @@ const EditMealPlanScreen = () => {
 
             <Button title="Save Changes" onPress={handleEditMeal} color="#4a148c" />
 
-            <TouchableOpacity style={styles.cancelButton} onPress={() => navigation.goBack()}>
-                <Text style={styles.cancelButtonText}>Cancel</Text>
+            <TouchableOpacity style={[globalStyle.button, styles.cancelButton]} onPress={() => navigation.goBack()}>
+                <Text style={[globalStyle.textSemiBold, styles.cancelButtonText]}>Cancel</Text>
             </TouchableOpacity>
         </ScrollView>
     );
@@ -259,8 +260,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#1a1a1a',
     },
     title: {
+        marginTop: 40,
         fontSize: 24,
-        fontWeight: 'bold',
         textAlign: 'center',
         marginBottom: 20,
         color: '#fff',
@@ -281,32 +282,22 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
     picker: {
-        height: 40,
+        height: 50,
+        marginBottom: 24,
         backgroundColor: '#2d2d2d',
         color: '#fff',
         borderRadius: 8,
     },
-    button: {
-        marginTop: 20,
-        backgroundColor: '#4a148c',
-        paddingVertical: 15,
-        borderRadius: 8,
-        alignItems: 'center',
-    },
     cancelButton: {
         marginTop: 20,
         padding: 10,
-        backgroundColor: '#ddd',
+        backgroundColor: '#4a148c',
         alignItems: 'center',
         borderRadius: 8,
     },
     cancelButtonText: {
         fontSize: 18,
-        color: '#000',
-    },
-    dateText: {
-        fontSize: 16,
-        color: '#bbb',
+        color: '#FFF',
     },
 });
 

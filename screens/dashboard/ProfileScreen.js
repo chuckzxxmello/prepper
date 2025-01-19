@@ -6,6 +6,7 @@ import {
     Image,
     TouchableOpacity,
     Dimensions,
+    ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -15,6 +16,8 @@ import globalStyle from '../../constants/GlobalStyle'; // Import global styles
 
 const ProfileScreen = () => {
     const [userData, setUserData] = useState(null);
+    const [loading, setLoading] = useState(true);  // Loading state
+    const [error, setError] = useState(null);      // Error state
     const navigation = useNavigation();
 
     useEffect(() => {
@@ -23,14 +26,18 @@ const ProfileScreen = () => {
                 try {
                     const userDoc = await getDoc(doc(db, 'userInfo', auth.currentUser.uid));
                     if (userDoc.exists()) {
-                        console.log(userDoc.data()); // Debug log
                         setUserData(userDoc.data());
                     } else {
-                        console.log('No such document!');
+                        setError('No such document!');
                     }
                 } catch (error) {
-                    console.error('Error fetching user data:', error);
+                    setError('Error fetching user data.');
+                } finally {
+                    setLoading(false);
                 }
+            } else {
+                setError('No user is logged in.');
+                setLoading(false);
             }
         };
         fetchUserData();
@@ -44,8 +51,22 @@ const ProfileScreen = () => {
             .catch((error) => console.error('Error logging out:', error));
     };
 
-    if (!userData) {
-        return <Text>Loading...</Text>; // Show loading until userData is available
+    if (loading) {
+        return (
+            <View style={styles.container}>
+                <ActivityIndicator size="large" color="#9D4EDD" />
+            </View>
+        ); // Show loading spinner until userData is available
+    }
+
+    if (error) {
+        return (
+            <View style={styles.container}>
+                <Text style={[globalStyle.textRegular, { color: 'red' }]}>
+                    {error}
+                </Text>
+            </View>
+        ); // Show error message if there was an issue
     }
 
     return (
@@ -100,7 +121,7 @@ const ProfileScreen = () => {
                     }
                 >
                     <Text style={[globalStyle.textRegular, styles.optionText]}>
-                        Nutrients Indicator
+                        Daily Nutrients Indicator
                     </Text>
                     <View style={styles.optionDetails}>
                         <Ionicons
@@ -180,6 +201,7 @@ const styles = StyleSheet.create({
     },
     profileHeader: {
         alignItems: 'center',
+		marginTop: 40,
         marginBottom: 24,
     },
     profileImage: {

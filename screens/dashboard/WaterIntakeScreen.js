@@ -4,6 +4,7 @@ import { IconButton } from 'react-native-paper';
 import ConfettiCannon from 'react-native-confetti-cannon';
 import { db, auth } from '../../config/firebase'; // Assuming Firebase is correctly set up
 import { doc, getDoc } from 'firebase/firestore';
+import globalStyle from '../../constants/GlobalStyle'; // Import globalStyle
 
 const WaterIntakeScreen = ({ navigation }) => {
   const [hasReachedGoal, setHasReachedGoal] = useState(false);
@@ -82,17 +83,17 @@ const WaterIntakeScreen = ({ navigation }) => {
         <ActivityIndicator size="large" color="#6200EE" />
       ) : (
         <>
-          <Text style={styles.title}>Your Daily Water Intake</Text>
+          <Text style={[globalStyle.textBold, styles.title]}>Your Daily Water Intake</Text>
           <View style={styles.waterInfo}>
-            <Text style={styles.infoTextWhite}>Water Consumed: {waterConsumed}L</Text>
-            <Text style={styles.infoTextWhite}>Goal: 3L</Text>
+            <Text style={globalStyle.textMedium}>Water Consumed: {waterConsumed}L</Text>
+            <Text style={globalStyle.textMedium}>Goal: 3L</Text>
 
             {waterConsumed <= 1.0 && (
-              <Text style={[styles.infoText, styles.boldText]}>Inom ka naman ng Tubig Baby!</Text>
+              <Text style={[globalStyle.textMedium]}>Inom ka naman ng Tubig Baby!</Text>
             )}
 
             {waterConsumed === 3.0 && (
-              <Text style={[styles.infoText, styles.boldText]}>Nice!</Text>
+              <Text style={[globalStyle.textRegular]}>Nice!</Text>
             )}
           </View>
 
@@ -151,7 +152,6 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
     color: '#2E0441',  // Primary color for text
     marginBottom: 20,
     zIndex: 1, // Ensure the title stays visible
@@ -159,16 +159,6 @@ const styles = StyleSheet.create({
   waterInfo: {
     alignItems: 'center',
     zIndex: 1,
-  },
-  infoTextWhite: {
-    fontSize: 18,
-    marginVertical: 8,
-    color: '#fff',  // White color for visibility in dark mode
-  },
-  infoText: {
-    fontSize: 18,
-    marginVertical: 8,
-    color: '#B0B0B0',  // Light text color for better visibility in dark mode
   },
   boldText: {
     fontWeight: 'bold', // Bolden the text

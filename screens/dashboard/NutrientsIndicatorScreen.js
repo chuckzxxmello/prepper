@@ -176,17 +176,17 @@ const styles = StyleSheet.create({
         padding: 20,
     },
     headerContainer: {
-        marginTop: 60,
-        marginBottom: 40,
+        marginTop: 40,
+        marginBottom: 24,
     },
     title: {
         fontSize: 28,
-        color: colors.primary,
+        color: '#FFF',
         marginBottom: 10,
     },
     subtitle: {
         fontSize: 16,
-        color: colors.text,
+        color: colors.primary,
     },
     resultContainer: {
         flex: 1,

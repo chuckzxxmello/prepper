@@ -9,6 +9,8 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import { colors } from '../../constants/colors';
+import globalStyle from '../../constants/GlobalStyle'; // Import global styles
 
 const CalorieCalculatorScreen = () => {
     const [weight, setWeight] = useState('');
@@ -39,10 +41,10 @@ const CalorieCalculatorScreen = () => {
             </TouchableOpacity>
 
             {/* Header with spacing */}
-            <Text style={styles.header}>Calorie Calculator</Text>
+            <Text style={[globalStyle.textBold, styles.header]}>Calorie Calculator</Text>
 
             {/* Set Physical State Section */}
-            <Text style={styles.subHeader}>Set Physical State</Text>
+            <Text style={[globalStyle.textBold, styles.subHeader]}>Set Physical State</Text>
 
             {/* Input fields */}
             <TextInput
@@ -71,7 +73,7 @@ const CalorieCalculatorScreen = () => {
             />
 
             {/* Activity Level Section */}
-            <Text style={styles.subHeader}>Activity Level</Text>
+            <Text style={[globalStyle.textBold, styles.subHeader]}>Activity Level</Text>
             {activityLevels.map((level) => (
                 <TouchableOpacity
                     key={level.value}
@@ -83,6 +85,7 @@ const CalorieCalculatorScreen = () => {
                 >
                     <Text
                         style={[
+                            globalStyle.textRegular,
                             styles.activityLevelText,
                             activityLevel === level.value && styles.selectedActivityLevelText,
                         ]}
@@ -94,12 +97,14 @@ const CalorieCalculatorScreen = () => {
 
             {/* Calculate Button */}
             <TouchableOpacity style={styles.calculateButton} onPress={calculateCalories}>
-                <Text style={styles.calculateButtonText}>Calculate</Text>
+                <Text style={[globalStyle.textBold, styles.calculateButtonText]}>Calculate</Text>
             </TouchableOpacity>
 
             {/* Result */}
             {calories && (
-                <Text style={styles.result}>Daily Calorie Intake: {calories.toFixed(2)} Cal</Text>
+                <Text style={[globalStyle.textBold, styles.result]}>
+                    Daily Calorie Intake: {calories.toFixed(2)} Cal
+                </Text>
             )}
         </View>
     );
@@ -122,16 +127,19 @@ const styles = StyleSheet.create({
     },
     header: {
         fontSize: 24,
-        fontWeight: 'bold',
         textAlign: 'center',
         marginBottom: 30,
         color: '#FFFFFF', // White text for header
     },
     subHeader: {
         marginVertical: 8,
-		fontSize: 24,
-		fontWeight: 'bold',
-		color: '#ffffff',
+        fontSize: 24,
+        textAlign: 'left',
+        color: '#ffffff',
+    },
+    subtitle: {
+        fontSize: 16,
+        color: colors.primary,
     },
     input: {
         height: 40,
@@ -174,7 +182,6 @@ const styles = StyleSheet.create({
     },
     result: {
         fontSize: 18,
-        fontWeight: 'bold',
         textAlign: 'center',
         marginTop: 16,
         color: '#fff',
