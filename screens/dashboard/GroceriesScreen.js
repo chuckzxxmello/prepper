@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import ProfileHeader from '../../components/ProfileHeader'; 
-import { auth, db } from '../../config/firebase'; 
-import { doc, updateDoc, arrayUnion, onSnapshot } from 'firebase/firestore'; 
+import ProfileHeader from '../../components/ProfileHeader';
+import { auth, db } from '../../config/firebase';
+import { doc, updateDoc, arrayUnion, onSnapshot } from 'firebase/firestore';
 import globalStyle from '../../constants/GlobalStyle'; // Import global font styles
 
 const GroceriesScreen = () => {
-    const [groceryList, setGroceryList] = useState([]); 
+    const [groceryList, setGroceryList] = useState([]);
     const [newItem, setNewItem] = useState('');
     const userId = auth.currentUser ? auth.currentUser.uid : null;
 
@@ -67,17 +67,17 @@ const GroceriesScreen = () => {
                 <Ionicons
                     name={item.checked ? "checkbox" : "square-outline"}
                     size={24}
-                    color="#BB86FC" // Dark mode accent color
+                    color="#BB86FC"
                 />
             </TouchableOpacity>
             <Text
                 style={[
-                    globalStyle.textRegular, // Apply global font style
-                    styles.listItemText, 
+                    globalStyle.textRegular,
+                    styles.listItemText,
                     item.checked && styles.checkedText
                 ]}
             >
-                {item.name || ''} {/* Ensure item.name is always a string */}
+                {item.name || 'Unnamed Item'}
             </Text>
             <TouchableOpacity onPress={() => removeItem(index)}>
                 <Ionicons name="close-circle" size={24} color="#BB86FC" />
@@ -89,7 +89,7 @@ const GroceriesScreen = () => {
         <View style={styles.container}>
             <ProfileHeader />
             <View style={styles.listHeaderContainer}>
-                <Text style={[globalStyle.textBold, styles.subtitle]}>Grocery List</Text> {/* Apply global font */}
+                <Text style={[globalStyle.textBold, styles.subtitle]}>Grocery List</Text>
                 <TouchableOpacity onPress={clearAllItems}>
                     <Text style={[globalStyle.textRegular, styles.clearAllText]}>Clear All</Text>
                 </TouchableOpacity>
@@ -99,17 +99,17 @@ const GroceriesScreen = () => {
                     <Ionicons name="add-circle" size={28} color="#6A1B9A" />
                 </TouchableOpacity>
                 <TextInput
-                    style={[globalStyle.textRegular, styles.input]} // Apply global font
+                    style={[globalStyle.textRegular, styles.input]}
                     placeholder="Add to list"
                     value={newItem}
                     onChangeText={setNewItem}
-                    placeholderTextColor="#B0B0B0" // Light placeholder text color
+                    placeholderTextColor="#B0B0B0"
                 />
             </View>
             <FlatList
                 data={groceryList}
                 renderItem={renderItem}
-                keyExtractor={(item, index) => `${item.name || 'item'}-${index}`} // Use a unique key
+                keyExtractor={(item, index) => `${item.name || 'item'}-${index}`}
             />
         </View>
     );
@@ -118,7 +118,7 @@ const GroceriesScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#121212', // Dark background
+        backgroundColor: '#121212',
     },
     listHeaderContainer: {
         flexDirection: 'row',
@@ -140,11 +140,11 @@ const styles = StyleSheet.create({
     },
     input: {
         flex: 1,
-        backgroundColor: '#333', // Dark background for input
+        backgroundColor: '#333',
         padding: 10,
         borderRadius: 5,
         marginLeft: 10,
-        color: '#FFF', // White text
+        color: '#FFF',
     },
     addButton: {
         padding: 5,
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         padding: 10,
         borderBottomWidth: 1,
-        borderBottomColor: '#444', // Darker divider line
+        borderBottomColor: '#444',
         marginHorizontal: 16,
     },
     listItemText: {
@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
     },
     checkedText: {
         textDecorationLine: 'line-through',
-        color: '#888', // Lighter color for checked items
+        color: '#888',
     },
     clearAllText: {
         fontSize: 14,
