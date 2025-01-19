@@ -425,8 +425,9 @@ const styles = StyleSheet.create({
     marginVertical: 4,
   },
   nutrientText: {
-    ...globalStyle.textRegular,
+    ...globalStyle.textSmall,
     color: '#ffffff',
+    fontSize: 13,
   },
   waterText: {
     ...globalStyle.textRegular,
