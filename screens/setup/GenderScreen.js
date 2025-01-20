@@ -13,6 +13,11 @@ const GenderScreen = ({ navigation, route }) => {
     const [selectedGender, setSelectedGender] = useState(null);
     const genders = ['male', 'female'];
 
+    // Capitalize function to be used for display
+    const capitalize = (str) => {
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    };
+
     const handleContinue = async () => {
         try {
             const userRef = doc(db, 'userInfo', auth.currentUser.uid);
@@ -36,8 +41,9 @@ const GenderScreen = ({ navigation, route }) => {
                 <Text style={[globalStyle.textRegular, styles.subtitle]}>Select your biological gender</Text>
             </View>
 
+            {/* Use .map() to capitalize values when displaying */}
             <OptionSelector
-                options={genders}
+                options={genders.map(capitalize)}  {/* Capitalize on display */}
                 selectedOption={selectedGender}
                 onSelect={setSelectedGender}
             />
@@ -53,6 +59,7 @@ const GenderScreen = ({ navigation, route }) => {
         </View>
     );
 };
+
 
 const styles = StyleSheet.create({
     container: {
