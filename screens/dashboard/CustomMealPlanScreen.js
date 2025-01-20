@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     modalInput: {
-        height: 40,
+        height: 50,
         backgroundColor: '#2d2d2d',
         color: '#fff',
         borderRadius: 8,
