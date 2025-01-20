@@ -5,9 +5,9 @@ export const calculateBMR = (weight, height, age, gender) => {
     }
     
     if (gender === 'male') {
-        return 88.362 + (13.397 * weight) + (4.799 * height) - (5.677 * age);
+        return parseFloat((88.362 + (13.397 * weight) + (4.799 * height) - (5.677 * age)).toFixed(2));
     }
-    return 447.593 + (9.247 * weight) + (3.098 * height) - (4.330 * age);
+    return parseFloat((447.593 + (9.247 * weight) + (3.098 * height) - (4.330 * age)).toFixed(2));
 };
 
 export const calculateTDEE = (bmr, activityLevel) => {
@@ -30,30 +30,19 @@ export const calculateTDEE = (bmr, activityLevel) => {
         veryActive: 1.9
     };
 
-    const multiplier = activityMultipliers[activityLevel];
-    return Math.round(bmr * multiplier);
+    const tdee = bmr * activityMultipliers[activityLevel];
+    return parseFloat(tdee.toFixed(2));
 };
 
 export const adjustCaloriesForGoal = (tdee, goal) => {
-    // Ensure TDEE is valid
-    if (isNaN(tdee)) {
-        console.log("Invalid TDEE value:", tdee);
-        return NaN;
-    }
-
-    // Validate goal input
-    if (!['lose', 'gain', 'maintain'].includes(goal)) {
-        console.log("Invalid goal value:", goal);
-        return NaN;
-    }
-
     switch (goal) {
         case 'lose':
             return Math.round(tdee - 500);
         case 'gain':
             return Math.round(tdee + 500);
+        case 'maintain':
         default:
-            return Math.round(tdee); // maintain
+            return Math.round(tdee);
     }
 };
 
@@ -81,7 +70,13 @@ export const calculateMacros = (calories, weight, goal) => {
             protein = Math.round(weight * 2);
             fat = Math.round((calories * 0.25) / 9);
             carbs = Math.round((calories - (protein * 4) - (fat * 9)) / 4);
+            break;
     }
+
+    // Ensure integer values to prevent precision loss
+    protein = protein;
+    fat = fat;
+    carbs = carbs;
 
     // Check if the results are valid
     if (isNaN(protein) || isNaN(fat) || isNaN(carbs)) {
