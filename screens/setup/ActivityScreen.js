@@ -1,62 +1,70 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import OptionSelector from '../../components/OptionSelector';
-import NextButton from '../../components/NextButton';
-import BackButton from '../../components/BackButton';
-import { colors } from '../../constants/colors'; // Import colors
-import globalStyle from '../../constants/GlobalStyle'; // Import GlobalStyles
+import { colors } from '../../constants/colors';
+import CustomButton from '../../components/CustomButton';
+import { auth } from '../../config/firebase';
 import { getFirestore, doc, updateDoc } from 'firebase/firestore';
-import { auth } from '../../config/firebase'; // Import Firebase auth
+import OptionSelector from '../../components/OptionSelector';
 
 const db = getFirestore();
 
-const ActivityScreen = ({ navigation }) => {
+// Map displayed labels to Firestore values
+const activityMap = {
+    'Sedentary': 'sedentary',
+    'Light': 'light',
+    'Moderate': 'moderate',
+    'Active': 'active',
+    'Very Active': 'veryActive'
+};
+const activityLabels = Object.keys(activityMap);
+
+const ActivityScreen = ({ navigation, route }) => {
     const [selectedActivity, setSelectedActivity] = useState(null);
 
-    const activityOptions = ['Sedentary', 'Low Active', 'Active', 'Very Active'];
+    const handleSelect = (label) => {
+        setSelectedActivity(activityMap[label]);
+    };
 
-    const saveActivityLevel = async (activity) => {
+    const handleContinue = async () => {
         try {
             const userRef = doc(db, 'userInfo', auth.currentUser.uid);
             await updateDoc(userRef, {
-                activityLevel: activity, // Save the selected activity level
+                activityLevel: selectedActivity
             });
-            console.log("Activity level saved successfully!");
+
+            navigation.navigate('Physical', {
+                ...route.params,
+                activityLevel: selectedActivity
+            });
         } catch (error) {
-            console.log("Error saving activity level:", error);
+            console.log('Error saving activity level:', error);
         }
     };
 
     return (
         <View style={styles.container}>
-            {/* Back Button */}
-            <BackButton onPress={() => navigation.goBack()} />
+            <View style={styles.headerContainer}>
+                <Text style={styles.title}>Activity Level</Text>
+                <Text style={styles.subtitle}>Select your typical activity level</Text>
+            </View>
 
-            {/* Title */}
-            <Text style={[globalStyle.textBold, styles.title]}>How active are you?</Text>
-            <Text style={[globalStyle.textRegular, styles.subtitle]}>
-                A sedentary person burns fewer calories than an active person
-            </Text>
-
-            {/* Option Selector */}
             <OptionSelector
-                options={activityOptions}
-                selectedOption={selectedActivity}
-                onSelect={(activity) => setSelectedActivity(activity)}
+                options={activityLabels}
+                selectedOption={
+                    // Find the label for the currently selected value
+                    activityLabels.find(label => activityMap[label] === selectedActivity)
+                }
+                onSelect={handleSelect}
             />
 
-            {/* Next Button */}
-            <NextButton
-                onPress={() => {
-                    if (selectedActivity) {
-                        // Save the activity level before navigating
-                        saveActivityLevel(selectedActivity);
-                        // Navigate to the next screen
-                        navigation.navigate('Physical', { activity: selectedActivity });
-                    }
-                }}
-                disabled={!selectedActivity} // Disable button if no option is selected
-            />
+            <View style={styles.buttonContainer}>
+                <CustomButton
+                    title="Continue"
+                    onPress={handleContinue}
+                    type="primary"
+                    disabled={!selectedActivity}
+                />
+            </View>
         </View>
     );
 };
@@ -64,36 +72,25 @@ const ActivityScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingHorizontal: 20,
-        paddingTop: 40,
-        backgroundColor: colors.background, // Dark background
+        backgroundColor: colors.background,
+        padding: 20,
+    },
+    headerContainer: {
+        marginTop: 60,
+        marginBottom: 40,
     },
     title: {
-        fontSize: 30,  // Increased font size for title
-        color: colors.text, // White text for title
-        marginBottom: 10,
-    },
-    subtitle: {
-        fontSize: 18,
+        fontSize: 28,
+        fontWeight: 'bold',
         color: colors.primary,
         marginBottom: 10,
     },
-    calculateButton: {
-        backgroundColor: colors.primary, // Purple background for the next button
-        paddingVertical: 16,
-        paddingHorizontal: 24,
-        borderRadius: 12,
-        alignItems: 'center',
-        marginVertical: 24,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 6,
+    subtitle: {
+        fontSize: 16,
+        color: colors.text,
     },
-    calculateButtonText: {
-        color: colors.text, // White text for next button
-        fontWeight: 'bold',
-        fontSize: 18,
+    buttonContainer: {
+        marginTop: 20,
     },
 });
 
