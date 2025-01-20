@@ -17,53 +17,10 @@ const MacroResultScreen = ({ navigation, route }) => {
     }, []);
 
     const calculateAndSetResults = async () => {
-        // Validate gender, set fallback if undefined
-        const validGender = gender || 'unknown';  // Fallback to 'unknown' if gender is undefined
-
-        // Validate activityLevel, set fallback if undefined
-        const validActivityLevel = activityLevel || 'sedentary';  // Fallback to 'sedentary' if undefined
-        if (!['sedentary', 'light', 'moderate', 'active', 'veryActive'].includes(validActivityLevel)) {
-            console.log("Invalid activity level, falling back to 'sedentary'");
-        }
-
-        // Validate goal, set fallback if undefined
-        const validGoal = goal || 'maintain';  // Fallback to 'maintain' if undefined
-        if (!['lose', 'gain', 'maintain'].includes(validGoal)) {
-            console.log("Invalid goal value, falling back to 'maintain'");
-        }
-
-        // Calculate BMR, TDEE, and adjust calories based on goal
-        const bmr = calculateBMR(weight, height, age, validGender);
-        if (isNaN(bmr)) {
-            console.log("BMR calculation failed");
-            return;
-        }
-
-        console.log("Calculated BMR:", bmr);
-
-        const tdee = calculateTDEE(bmr, validActivityLevel);  // Use validActivityLevel
-        if (isNaN(tdee)) {
-            console.log("TDEE calculation failed");
-            return;
-        }
-
-        console.log("Calculated TDEE:", tdee);
-
-        const targetCalories = adjustCaloriesForGoal(tdee, validGoal);  // Use validGoal
-        if (isNaN(targetCalories)) {
-            console.log("Target Calories calculation failed");
-            return;
-        }
-
-        console.log("Adjusted Target Calories:", targetCalories);
-
-        const { protein, fat, carbs } = calculateMacros(targetCalories, weight, validGoal);
-        if (isNaN(protein) || isNaN(fat) || isNaN(carbs)) {
-            console.log("Macronutrient calculation failed:", { protein, fat, carbs });
-            return;
-        }
-
-        console.log("Calculated Macros:", { protein, fat, carbs });
+        const bmr = calculateBMR(weight, height, age, gender);
+        const tdee = calculateTDEE(bmr, activityLevel);
+        const targetCalories = adjustCaloriesForGoal(tdee, goal);
+        const { protein, fat, carbs } = calculateMacros(targetCalories, weight, goal);
 
         const proteinPercentage = Math.round((protein * 4 / targetCalories) * 100);
         const fatPercentage = Math.round((fat * 9 / targetCalories) * 100);
@@ -89,9 +46,9 @@ const MacroResultScreen = ({ navigation, route }) => {
                 weight,
                 height,
                 age,
-                gender: validGender,  // Ensure valid gender is passed
-                activityLevel: validActivityLevel, // Update with valid activityLevel
-                goal: validGoal // Update with valid goal
+                gender,
+                activityLevel,
+                goal
             });
         } catch (error) {
             console.log('Error updating user data:', error);
