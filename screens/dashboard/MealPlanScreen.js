@@ -58,20 +58,22 @@ const MealPlanScreen = () => {
 
     const deleteMeal = async () => {
         if (mealToDelete && mealToDelete.recipeId) {
-            const recipeId = mealToDelete.recipeId; // Use the number directly for matching
-            console.log('Deleting meal with ID:', recipeId);
-
+            const recipeId = mealToDelete.recipeId;
+            const mealDay = selectedDay; // Ensure selectedDay is available in this scope
+            console.log('Deleting meal with ID:', recipeId, 'on day:', mealDay);
+    
             try {
-                const userDocRef = doc(db, 'userInfo', auth.currentUser.uid); // Reference to user's document
+                const userDocRef = doc(db, 'userInfo', auth.currentUser.uid);
                 const userDoc = await getDoc(userDocRef);
-
+    
                 if (userDoc.exists()) {
                     const userData = userDoc.data();
-                    const updatedMealPlan = userData.mealPlan.filter(meal => meal.recipeId !== recipeId); // Remove the meal
-
-                    // Update the mealPlan array in Firestore
+                    const updatedMealPlan = userData.mealPlan.filter(meal => 
+                        !(meal.recipeId === recipeId && meal.mealDay === mealDay)
+                    ); // Remove only the specific meal
+    
                     await setDoc(userDocRef, { mealPlan: updatedMealPlan }, { merge: true });
-
+    
                     console.log('Meal deleted successfully');
                     Alert.alert('Success', 'Meal deleted successfully.');
                     setModalVisible(false);
