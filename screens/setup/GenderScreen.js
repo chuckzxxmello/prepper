@@ -41,9 +41,9 @@ const GenderScreen = ({ navigation, route }) => {
                 <Text style={[globalStyle.textRegular, styles.subtitle]}>Select your biological gender</Text>
             </View>
 
-            {/* Use .map() to capitalize values when displaying */}
+            {/* Capitalize values on display */}
             <OptionSelector
-                options={genders.map(capitalize)}  {/* Capitalize on display */}
+                options={genders.map(capitalize)} // This line handles the capitalization properly
                 selectedOption={selectedGender}
                 onSelect={setSelectedGender}
             />
@@ -59,7 +59,6 @@ const GenderScreen = ({ navigation, route }) => {
         </View>
     );
 };
-
 
 const styles = StyleSheet.create({
     container: {
