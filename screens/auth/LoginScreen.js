@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
         marginVertical: 8,
     },
     buttonText: {
-        color: colors.background, // Text color for button
+        color: '#FFFFFF',
         fontWeight: 'bold',
     },
     link: {
