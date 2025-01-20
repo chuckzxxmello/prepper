@@ -470,7 +470,7 @@ const styles = StyleSheet.create({
     closeModalText: {
         fontSize: 16,
         fontFamily: 'Inter-Medium',
-        color: colors.white,
+        color: '#FFFFFF',
     },
 });
 
