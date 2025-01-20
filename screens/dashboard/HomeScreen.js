@@ -4,7 +4,7 @@ import { Text, Button, Card, IconButton, ProgressBar } from 'react-native-paper'
 import { LineChart } from 'react-native-chart-kit';
 import ProfileHeader from '../../components/ProfileHeader';
 import { db, auth } from '../../config/firebase';
-import { doc, getDoc, setDoc, getFirestore, onSnapshot } from 'firebase/firestore';
+import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import moment from 'moment';
 
 import { calculateBMR, calculateTDEE, adjustCaloriesForGoal, calculateMacros } from '../../utils/calculations';
@@ -134,11 +134,7 @@ export default function HomeScreen({ navigation }) {
     </View>
   );
 
-
-  const db = getFirestore();
-
   const renderNutrientsIndicator = () => {
-    const [userData, setUserData] = useState(null);
     const [results, setResults] = useState(null);
     const [mealPlanTotals, setMealPlanTotals] = useState(null);
     const currentDay = moment().format('dddd'); // Get current day (e.g., 'Wednesday')
@@ -199,7 +195,7 @@ export default function HomeScreen({ navigation }) {
               {roundedCurrent} / {roundedTotal} {label === "Calories" ? "kcal" : "g"}
             </Text>
           </View>
-          <ProgressBar progress={Math.min(progress, 1)} color={color} style={{height: 6, borderRadius: 3}} />
+          <ProgressBar progress={Math.min(parseFloat(progress), 1)} color={color} style={{height: 6, borderRadius: 3}} />
         </>
       );
     };
@@ -208,7 +204,7 @@ export default function HomeScreen({ navigation }) {
       const todaysMeals = mealPlan.filter(meal => meal.mealDay === currentDay);
       const totals = todaysMeals.reduce((acc, meal) => {
         return {
-          calories: acc.calories * Math.round(meal.macronutrients?.calories || 0),
+          calories: acc.calories + Math.round(meal.macronutrients?.calories || 0),
           protein: acc.protein + Math.round(meal.macronutrients?.protein || 0),
           fat: acc.fat + Math.round(meal.macronutrients?.fat || 0),
           carbs: acc.carbs + Math.round(meal.macronutrients?.carbs || 0)
@@ -355,7 +351,6 @@ export default function HomeScreen({ navigation }) {
     );
   };
 
-
   return (
     <View style={styles.container}>
       {/* Fixed Header */}
@@ -497,4 +492,3 @@ const styles = StyleSheet.create({
     marginVertical: 16,
   },
 });
-
