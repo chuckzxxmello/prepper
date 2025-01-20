@@ -21,10 +21,10 @@ const CalorieCalculatorScreen = () => {
     const navigation = useNavigation();
 
     const activityLevels = [
-        { label: 'Sedentary or Lightly Active', value: 1.45 },
-        { label: 'Active or Moderately Active', value: 1.75 },
+        { label: 'Sedentary', value: 1.45 },
+        { label: 'Active', value: 1.75 },
         { label: 'Highly Active', value: 2.05 },
-        { label: 'Very Highly Active', value: 2.45 },
+        { label: 'Very Active', value: 2.45 },
     ];
 
     const calculateCalories = () => {
@@ -42,6 +42,13 @@ const CalorieCalculatorScreen = () => {
 
             {/* Header with spacing */}
             <Text style={[globalStyle.textBold, styles.header]}>Calorie Calculator</Text>
+			
+			{/* Result */}
+            {calories && (
+                <Text style={[globalStyle.textBold, styles.result]}>
+                    Daily Calorie Intake: {calories.toFixed(2)} Cal
+                </Text>
+            )}
 
             {/* Set Physical State Section */}
             <Text style={[globalStyle.textBold, styles.subHeader]}>Set Physical State</Text>
@@ -90,7 +97,7 @@ const CalorieCalculatorScreen = () => {
                             activityLevel === level.value && styles.selectedActivityLevelText,
                         ]}
                     >
-                        {level.label} (PAL {level.value})
+                        {level.label}
                     </Text>
                 </TouchableOpacity>
             ))}
@@ -99,13 +106,7 @@ const CalorieCalculatorScreen = () => {
             <TouchableOpacity style={styles.calculateButton} onPress={calculateCalories}>
                 <Text style={[globalStyle.textBold, styles.calculateButtonText]}>Calculate</Text>
             </TouchableOpacity>
-
-            {/* Result */}
-            {calories && (
-                <Text style={[globalStyle.textBold, styles.result]}>
-                    Daily Calorie Intake: {calories.toFixed(2)} Cal
-                </Text>
-            )}
+			
         </View>
     );
 };
@@ -181,10 +182,11 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     result: {
-        fontSize: 18,
+        fontSize: 20,
         textAlign: 'center',
         marginTop: 16,
-        color: '#fff',
+        color: colors.primary,
+		marginBottom: 20,
     },
 });
 
