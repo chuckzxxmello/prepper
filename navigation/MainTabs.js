@@ -19,13 +19,14 @@ const MainTabs = () => {
                     if (route.name === 'Home') {
                         iconName = focused ? 'home' : 'home-outline';
                     } else if (route.name === 'Recipes') {
-                        iconName = focused ? 'fast-food' : 'fast-food-outline';
+                        iconName = focused ? 'book' : 'book-outline'; // Use book icons for Recipes
                     } else if (route.name === 'Groceries') {
                         iconName = focused ? 'cart' : 'cart-outline';
                     }
 
                     return <Ionicons name={iconName} size={size} color={color} />;
                 },
+
                 tabBarActiveTintColor: '#BB86FC', // Dark mode primary color
                 tabBarInactiveTintColor: '#B0B0B0', // Light gray for inactive tabs
                 tabBarStyle: {

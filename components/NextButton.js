@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 
 const NextButton = ({ onPress, disabled }) => {
     return (
@@ -8,10 +8,9 @@ const NextButton = ({ onPress, disabled }) => {
             onPress={onPress}
             disabled={disabled}
         >
-            <Image
-                source={require('../assets/nextbutton.png')}
-                style={styles.buttonImage}
-            />
+            <Text style={[styles.buttonText, disabled && styles.disabledText]}>
+                Next
+            </Text>
         </TouchableOpacity>
     );
 };
@@ -19,15 +18,16 @@ const NextButton = ({ onPress, disabled }) => {
 const styles = StyleSheet.create({
     nextButton: {
         position: 'absolute',
-        bottom: 20,
-        right: 20,
-        width: 60,
-        height: 60,
+        bottom: 40, // Adjusted to position like your BackButton
+        right: 40,  // Positioned on the right side
     },
-    buttonImage: {
-        width: '100%',
-        height: '100%',
-        resizeMode: 'contain',
+    buttonText: {
+        fontSize: 18,
+        color: '#9D4EDD', // Default color
+        fontWeight: 'bold',
+    },
+    disabledText: {
+        color: '#B0B0B0',  // Light gray text for the disabled state
     },
 });
 

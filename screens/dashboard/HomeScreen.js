@@ -4,11 +4,11 @@ import { Text, Button, Card, IconButton, ProgressBar } from 'react-native-paper'
 import { LineChart } from 'react-native-chart-kit';
 import ProfileHeader from '../../components/ProfileHeader';
 import { db, auth } from '../../config/firebase';
-import { doc, getDoc, setDoc, getFirestore, onSnapshot } from 'firebase/firestore';
+import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import moment from 'moment';
 
 import { calculateBMR, calculateTDEE, adjustCaloriesForGoal, calculateMacros } from '../../utils/calculations';
-import lobalStyle from '../../constants/GlobalStyle'; // Import global styles
+import globalStyle from '../../constants/GlobalStyle'; // Import global styles
 
 export default function HomeScreen({ navigation }) {
   const [waterIntake, setWaterIntake] = useState(0);
@@ -100,7 +100,7 @@ export default function HomeScreen({ navigation }) {
             return mealsForDay.reduce((total, meal) => total + (Number(meal.macronutrients?.calories) || 0), 0);
           });
         })(),
-        color: (opacity = 1) => `rgba(128, 0, 128, ${opacity})`,
+        color: (opacity = 1) => `rgba(167, 139, 250, ${opacity})`, // Updated to match the new purple theme
         strokeWidth: 2,
       },
     ],
@@ -115,16 +115,17 @@ export default function HomeScreen({ navigation }) {
         height={220}
         yAxisLabel=""
         chartConfig={{
-          backgroundColor: '#121212',
-          backgroundGradientFrom: '#1E1E1E',
-          backgroundGradientTo: '#121212',
+          backgroundColor: '#000000',
+          backgroundGradientFrom: '#1C1C1E',
+          backgroundGradientTo: '#000000',
           decimalPlaces: 0,
           color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
           labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
           propsForDots: {
-            r: '2',
-            stroke: '#BB86FC',
-            fill: '#BB86FC',
+            r: '4',
+            strokeWidth: '2',
+            stroke: '#A78BFA',
+            fill: '#000000',
           },
         }}
         bezier={false}
@@ -133,11 +134,7 @@ export default function HomeScreen({ navigation }) {
     </View>
   );
 
-
-  const db = getFirestore();
-
   const renderNutrientsIndicator = () => {
-    const [userData, setUserData] = useState(null);
     const [results, setResults] = useState(null);
     const [mealPlanTotals, setMealPlanTotals] = useState(null);
     const currentDay = moment().format('dddd'); // Get current day (e.g., 'Wednesday')
@@ -198,7 +195,7 @@ export default function HomeScreen({ navigation }) {
               {roundedCurrent} / {roundedTotal} {label === "Calories" ? "kcal" : "g"}
             </Text>
           </View>
-          <ProgressBar progress={Math.min(progress, 1)} color={color} />
+          <ProgressBar progress={Math.min(parseFloat(progress), 1)} color={color} style={{height: 6, borderRadius: 3}} />
         </>
       );
     };
@@ -260,10 +257,10 @@ export default function HomeScreen({ navigation }) {
         <Card style={styles.card}>
           <Card.Content>
             <Text variant="titleSmall" style={styles.sectionTitle}>Daily Nutrients Indicator</Text>
-            {renderProgressBar("Calories", calculateTotalCalories(currentDay), results.tdee, "#64B5F6")}
-            {renderProgressBar("Proteins", calculateTotalProtein(currentDay), results.proteinTarget, "#E57373")}
-            {renderProgressBar("Fats", calculateTotalFat(currentDay), results.fatTarget, "#FFB74D")}
-            {renderProgressBar("Carbs", calculateTotalCarbs(currentDay), results.carbTarget, "#81C784")}
+            {renderProgressBar("Calories", calculateTotalCalories(currentDay), results.tdee, "#A78BFA")}
+            {renderProgressBar("Proteins", calculateTotalProtein(currentDay), results.proteinTarget, "#FF9F9F")}
+            {renderProgressBar("Fats", calculateTotalFat(currentDay), results.fatTarget, "#FFD699")}
+            {renderProgressBar("Carbs", calculateTotalCarbs(currentDay), results.carbTarget, "#A3E4D7")}
           </Card.Content>
         </Card>
       </TouchableOpacity>
@@ -326,8 +323,9 @@ export default function HomeScreen({ navigation }) {
               <Text variant="titleSmall" style={styles.sectionTitle}>Today's Meals</Text>
               <IconButton
                 icon="plus"
-                size={20}
-                onPress={() => navigation.navigate('RecipeDetailScreen')}
+                size={24}
+                color="#A78BFA"
+                onPress={() => navigation.navigate('RecipeScreen')}
               />
             </View>
 
@@ -353,7 +351,6 @@ export default function HomeScreen({ navigation }) {
     );
   };
 
-
   return (
     <View style={styles.container}>
       {/* Fixed Header */}
@@ -373,16 +370,14 @@ export default function HomeScreen({ navigation }) {
   );
 }
 
-import globalStyle from '../../constants/GlobalStyle'; // Import your global styles
-
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#121212',
+    backgroundColor: '#000000',
     flex: 1,
   },
   bodyStatsHeader: {
-    ...globalStyle.textBold, // Apply global bold font
-    fontSize: 24,
+    ...globalStyle.textBold,
+    fontSize: 28,
     padding: 16,
     color: '#ffffff',
   },
@@ -410,14 +405,14 @@ const styles = StyleSheet.create({
   card: {
     marginBottom: 16,
     marginTop: 4,
-    borderRadius: 12,
-    elevation: 2,
-    backgroundColor: '#333333',
+    borderRadius: 16,
+    backgroundColor: '#1C1C1E',
   },
   sectionTitle: {
-    ...globalStyle.textSemiBold, // Apply global semi-bold font
+    ...globalStyle.textSemiBold,
     marginBottom: 8,
-    color: '#BB86FC',
+    color: '#A78BFA',
+    fontSize: 18,
   },
   nutrientRow: {
     flexDirection: 'row',
@@ -425,12 +420,14 @@ const styles = StyleSheet.create({
     marginVertical: 4,
   },
   nutrientText: {
-    ...globalStyle.textRegular, // Apply global regular font
+    ...globalStyle.textSmall,
     color: '#ffffff',
+    fontSize: 13,
   },
   waterText: {
-    ...globalStyle.textRegular, // Apply global regular font
+    ...globalStyle.textRegular,
     color: '#ffffff',
+    fontSize: 16,
   },
   waterRow: {
     flexDirection: 'row',
@@ -443,11 +440,12 @@ const styles = StyleSheet.create({
   },
   waterButton: {
     marginHorizontal: 4,
+    backgroundColor: '#A78BFA',
   },
   lastTimeText: {
-    ...globalStyle.textSmall, // Apply global small text style
+    ...globalStyle.textSmall,
     marginTop: 8,
-    color: '#757575',
+    color: '#8E8E93',
   },
   mealHeader: {
     flexDirection: 'row',
@@ -457,12 +455,12 @@ const styles = StyleSheet.create({
   mealItem: {
     marginVertical: 8,
     padding: 12,
-    backgroundColor: '#242424',
-    borderRadius: 8,
+    backgroundColor: '#2C2C2E',
+    borderRadius: 12,
   },
   mealTitle: {
-    ...globalStyle.textBold, // Apply global bold font
-    fontSize: 16,
+    ...globalStyle.textBold,
+    fontSize: 17,
     color: '#ffffff',
     marginBottom: 4,
   },
@@ -472,24 +470,24 @@ const styles = StyleSheet.create({
     marginVertical: 4,
   },
   mealType: {
-    ...globalStyle.textRegular, // Apply global regular font
-    color: '#BB86FC',
-    fontSize: 14,
+    ...globalStyle.textRegular,
+    color: '#A78BFA',
+    fontSize: 15,
   },
   mealTime: {
-    ...globalStyle.textRegular, // Apply global regular font
-    color: '#BB86FC',
-    fontSize: 14,
+    ...globalStyle.textRegular,
+    color: '#A78BFA',
+    fontSize: 15,
   },
   caloriesText: {
-    ...globalStyle.textRegular, // Apply global regular font
-    color: '#999999',
+    ...globalStyle.textRegular,
+    color: '#8E8E93',
     fontSize: 14,
     marginTop: 4,
   },
   noMealsText: {
-    ...globalStyle.textRegular, // Apply global regular font
-    color: '#757575',
+    ...globalStyle.textRegular,
+    color: '#8E8E93',
     textAlign: 'center',
     marginVertical: 16,
   },

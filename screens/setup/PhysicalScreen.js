@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet } from 'react-native';
-import { colors } from '../../constants/colors';
+import { colors } from '../../constants/colors'; // Import colors
 import CustomButton from '../../components/CustomButton';
 import { auth } from '../../config/firebase';
 import { getFirestore, doc, updateDoc } from 'firebase/firestore';
+import globalStyle from '../../constants/GlobalStyle'; // Import GlobalStyles
 
 const db = getFirestore();
 
@@ -35,8 +36,8 @@ const PhysicalScreen = ({ navigation, route }) => {
     return (
         <View style={styles.container}>
             <View style={styles.headerContainer}>
-                <Text style={styles.title}>Physical Details</Text>
-                <Text style={styles.subtitle}>Enter your measurements</Text>
+                <Text style={[globalStyle.textBold, styles.title]}>Physical Details</Text>
+                <Text style={[globalStyle.textRegular, styles.subtitle]}>Enter your measurements</Text>
             </View>
 
             <View style={styles.inputContainer}>
@@ -46,6 +47,7 @@ const PhysicalScreen = ({ navigation, route }) => {
                     value={weight}
                     onChangeText={setWeight}
                     keyboardType="decimal-pad"
+                    placeholderTextColor={colors.textLight}
                 />
                 <TextInput
                     style={styles.input}
@@ -53,6 +55,7 @@ const PhysicalScreen = ({ navigation, route }) => {
                     value={height}
                     onChangeText={setHeight}
                     keyboardType="decimal-pad"
+                    placeholderTextColor={colors.textLight}
                 />
                 <TextInput
                     style={styles.input}
@@ -60,6 +63,7 @@ const PhysicalScreen = ({ navigation, route }) => {
                     value={age}
                     onChangeText={setAge}
                     keyboardType="decimal-pad"
+                    placeholderTextColor={colors.textLight}
                 />
             </View>
 
@@ -78,7 +82,7 @@ const PhysicalScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: colors.background,
+        backgroundColor: colors.background, // Dark background from colors.js
         padding: 20,
     },
     headerContainer: {
@@ -86,14 +90,14 @@ const styles = StyleSheet.create({
         marginBottom: 40,
     },
     title: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        color: colors.primary,
+        fontSize: 30,  // Increased font size for prominence
+        color: colors.text, // White text for header
         marginBottom: 10,
     },
     subtitle: {
-        fontSize: 16,
-        color: colors.text,
+        fontSize: 18,
+        color: colors.primary,
+        marginBottom: 10,
     },
     inputContainer: {
         flex: 1,
@@ -101,10 +105,12 @@ const styles = StyleSheet.create({
     },
     input: {
         borderWidth: 1,
-        borderColor: colors.border,
+        borderColor: colors.secondary,
         borderRadius: 10,
         padding: 15,
         fontSize: 16,
+        color: colors.text, // Text color for input fields from colors.js
+        backgroundColor: colors.inputBackground, // Dark background for inputs from colors.js
     },
     buttonContainer: {
         marginTop: 20,

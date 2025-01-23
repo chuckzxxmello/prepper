@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
 import CustomButton from '../../components/CustomButton';
 import { colors } from '../../constants/colors';
+import globalStyle from '../../constants/GlobalStyle'; // Import GlobalStyles
 
 const WelcomeScreen = ({ navigation }) => {
   return (
@@ -16,22 +17,15 @@ const WelcomeScreen = ({ navigation }) => {
       </View>
       
       <View style={styles.contentContainer}>
-	  
-	  
-        <Text style={styles.title}>Welcome to Prepper</Text>
-        <Text style={styles.subtitle}>Let him cook!</Text>
+        <Text style={[globalStyle.textBold, styles.title]}>Welcome to Prepper</Text>
+        <Text style={[globalStyle.textRegular, styles.subtitle]}>Let him cook!</Text>
       </View>
 
       <View style={styles.buttonContainer}>
         <CustomButton
-          title="Log In"
+          title="Start"
           onPress={() => navigation.navigate('Login')}
           type="primary"
-        />
-        <CustomButton
-          title="Create Account"
-          onPress={() => navigation.navigate('Signup')}
-          type="secondary"
         />
       </View>
     </View>
@@ -41,7 +35,7 @@ const WelcomeScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#121212', // Dark background color
+    backgroundColor: colors.background, // Use background color from colors.js
     padding: 20,
   },
   logoContainer: {
@@ -50,7 +44,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   logo: {
-	marginTop: 300,
+    marginTop: 300,
     width: 250,  // Adjust the width as needed
     height: 250, // Adjust the height as needed
   },
@@ -62,13 +56,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#BB86FC', // Accent color for title
+    color: colors.primary, // Title color from colors.js
     marginBottom: 10,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: 16,
-    color: '#E0E0E0', // Lighter text color for better contrast
+    color: colors.textLight, // Subtitle color from colors.js
     textAlign: 'center',
     marginBottom: 20,
   },

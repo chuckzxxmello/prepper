@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Alert } from 'react-native';
-import { colors } from '../../constants/colors';
+import { colors } from '../../constants/colors';  // Import colors
 import StyledInput from '../../components/StyledInput';
 import { auth } from '../../config/firebase';
 import { getFirestore, doc, setDoc } from 'firebase/firestore';
 import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
 import CustomButton from '../../components/CustomButton';
+import globalStyle from '../../constants/GlobalStyle'; // Import GlobalStyles
 
 const db = getFirestore();
 
@@ -25,6 +26,7 @@ const SignupScreen = ({ navigation }) => {
                 url: 'https://prepper-a7da8.firebaseapp.com',
             });
 
+            // Save user data in Firestore
             await setDoc(doc(db, 'userInfo', user.uid), {
                 fullName: fullName,
                 email: email,
@@ -50,31 +52,37 @@ const SignupScreen = ({ navigation }) => {
     return (
         <View style={styles.container}>
             <View style={styles.headerContainer}>
-                <Text style={styles.title}>Create Account</Text>
-                <Text style={styles.subtitle}>Sign up to get started</Text>
+                <Text style={[globalStyle.textBold, styles.title]}>Create Account</Text>
+                <Text style={[globalStyle.textRegular, styles.subtitle]}>Sign up to get started</Text>
             </View>
 
             <View style={styles.formContainer}>
-                <StyledInput
-                    placeholder="Full Name"
-                    value={fullName}
-                    onChangeText={setFullName}
-                    placeholderTextColor="#B0B0B0"
-                />
-                <StyledInput
-                    placeholder="Email"
-                    value={email}
-                    onChangeText={setEmail}
-                    keyboardType="email-address"
-                    placeholderTextColor="#B0B0B0"
-                />
-                <StyledInput
-                    placeholder="Password"
-                    value={password}
-                    onChangeText={setPassword}
-                    secureTextEntry
-                    placeholderTextColor="#B0B0B0"
-                />
+<StyledInput
+    placeholder="Full Name"
+    value={fullName}
+    onChangeText={setFullName}
+    placeholderTextColor={colors.textLight}
+    style={{ color: colors.text }}  // Set text color to white
+/>
+<StyledInput
+    placeholder="Email"
+    value={email}
+    onChangeText={setEmail}
+    keyboardType="email-address"
+    placeholderTextColor={colors.textLight}
+    style={{ color: colors.text }}  // Set text color to white
+/>
+<StyledInput
+    placeholder="Password"
+    value={password}
+    onChangeText={setPassword}
+    isPassword={true}
+    showPasswordToggle={true}
+    placeholderTextColor={colors.textLight}
+/>
+
+
+
 
                 <View style={styles.buttonContainer}>
                     <CustomButton
@@ -91,7 +99,7 @@ const SignupScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#121212', // Dark background
+        backgroundColor: colors.background, // Use background color from colors.js
         padding: 20,
     },
     headerContainer: {
@@ -101,13 +109,13 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 28,
         fontWeight: 'bold',
-        color: '#BB86FC', // Accent color
+        color: colors.textLight,
         marginBottom: 10,
     },
     subtitle: {
         fontSize: 16,
-        color: '#E0E0E0', // Light text for subtitle
-    },
+		color: colors.primary,
+	},
     formContainer: {
         flex: 1,
     },

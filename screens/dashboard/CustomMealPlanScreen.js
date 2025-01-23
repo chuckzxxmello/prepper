@@ -224,8 +224,9 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 24,
         fontWeight: 'bold',
-        textAlign: 'center',
+        textAlign: 'left',
         marginBottom: 20,
+		marginTop: 40,
         color: '#fff',
     },
     input: {
@@ -244,7 +245,7 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
     picker: {
-        height: 40,
+        height: 50,
         backgroundColor: '#2d2d2d',
         color: '#fff',
         borderRadius: 8,
@@ -275,7 +276,7 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     modalInput: {
-        height: 40,
+        height: 50,
         backgroundColor: '#2d2d2d',
         color: '#fff',
         borderRadius: 8,

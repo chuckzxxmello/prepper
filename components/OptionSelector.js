@@ -1,5 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { colors } from '../constants/colors'; // Import colors from your theme
+import globalStyle from '../constants/GlobalStyle'; // Import global font styles
 
 const OptionSelector = ({ options, selectedOption, onSelect }) => {
     return (
@@ -9,11 +11,19 @@ const OptionSelector = ({ options, selectedOption, onSelect }) => {
                     key={option}
                     style={[
                         styles.option,
-                        selectedOption === option && styles.selected, 
+                        selectedOption === option && styles.selectedOption,
                     ]}
                     onPress={() => onSelect(option)}
                 >
-                    <Text style={styles.optionText}>{option}</Text>
+                    <Text
+                        style={[
+                            globalStyle.textRegular, // Apply regular font style
+                            selectedOption === option && globalStyle.textBold, // Bold for selected option
+                            selectedOption === option && styles.selectedText,
+                        ]}
+                    >
+                        {option}
+                    </Text>
                 </TouchableOpacity>
             ))}
         </View>
@@ -22,24 +32,25 @@ const OptionSelector = ({ options, selectedOption, onSelect }) => {
 
 const styles = StyleSheet.create({
     optionsContainer: {
-        flex: 0.8,
-        justifyContent: 'center',
+        flex: 1,
+        marginTop: 40,
     },
     option: {
-        padding: 15,
-        backgroundColor: '#f5f5f5',
-        marginVertical: 8,
-        borderRadius: 10,
+        paddingVertical: 16,
+        paddingHorizontal: 20,
+        backgroundColor: colors.white, // Default light background for options
+        marginVertical: 10,
+        borderRadius: 8,
         borderWidth: 1,
-        borderColor: '#ddd',
+        borderColor: colors.secondary, // Light gray border for unselected options
+        alignItems: 'center',
     },
-    selected: {
-        borderColor: '#6A0DAD', 
-        backgroundColor: '#EDE7F6', 
+    selectedOption: {
+        backgroundColor: colors.primary, // Purple background for selected option
+        borderColor: colors.primary, // Purple border for selected option
     },
-    optionText: {
-        fontSize: 18,
-        textAlign: 'center',
+    selectedText: {
+        color: '#fff', // White text for selected option
     },
 });
 

@@ -4,8 +4,8 @@ import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { auth, db } from '../../config/firebase';
 import { doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
-
 import moment from 'moment';
+import globalStyle from '../../constants/GlobalStyle'; // Import Global Styles
 
 const MealPlanScreen = () => {
     const [userData, setUserData] = useState(null);
@@ -58,20 +58,22 @@ const MealPlanScreen = () => {
 
     const deleteMeal = async () => {
         if (mealToDelete && mealToDelete.recipeId) {
-            const recipeId = mealToDelete.recipeId; // Use the number directly for matching
-            console.log('Deleting meal with ID:', recipeId);
-
+            const recipeId = mealToDelete.recipeId;
+            const mealDay = selectedDay; // Ensure selectedDay is available in this scope
+            console.log('Deleting meal with ID:', recipeId, 'on day:', mealDay);
+    
             try {
-                const userDocRef = doc(db, 'userInfo', auth.currentUser.uid); // Reference to user's document
+                const userDocRef = doc(db, 'userInfo', auth.currentUser.uid);
                 const userDoc = await getDoc(userDocRef);
-
+    
                 if (userDoc.exists()) {
                     const userData = userDoc.data();
-                    const updatedMealPlan = userData.mealPlan.filter(meal => meal.recipeId !== recipeId); // Remove the meal
-
-                    // Update the mealPlan array in Firestore
+                    const updatedMealPlan = userData.mealPlan.filter(meal => 
+                        !(meal.recipeId === recipeId && meal.mealDay === mealDay)
+                    ); // Remove only the specific meal
+    
                     await setDoc(userDocRef, { mealPlan: updatedMealPlan }, { merge: true });
-
+    
                     console.log('Meal deleted successfully');
                     Alert.alert('Success', 'Meal deleted successfully.');
                     setModalVisible(false);
@@ -137,7 +139,7 @@ const MealPlanScreen = () => {
                 <Ionicons name="arrow-back" size={24} color="#fff" />
             </TouchableOpacity>
 
-            <Text style={styles.title}>My Meal Plans</Text>
+            <Text style={[globalStyle.textBold, styles.title]}>My Meal Plans</Text>
 
             <View style={styles.daySelector}>
                 {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => (
@@ -146,22 +148,22 @@ const MealPlanScreen = () => {
                         style={[styles.dayButton, selectedDay === day && styles.selectedDay]}
                         onPress={() => setSelectedDay(day)}
                     >
-                        <Text style={styles.dayButtonText}>{day.slice(0, 3)}</Text>
+                        <Text style={globalStyle.textRegular}>{day.slice(0, 3)}</Text>
                     </TouchableOpacity>
                 ))}
             </View>
 
             <View style={styles.mealPlanOverview}>
-                <Text style={styles.sectionTitle}>Meals for {selectedDay}</Text>
+                <Text style={[globalStyle.textBold, styles.sectionTitle]}>Meals for {selectedDay}</Text>
                 {userData?.mealPlan?.filter(meal => meal.mealDay === selectedDay)?.length ? (
                     userData.mealPlan.filter(meal => meal.mealDay === selectedDay).map((meal, index) => (
                         <View key={index} style={styles.mealPane}>
-                            <Text style={styles.mealPlanText}>{meal.title}</Text>
-                            <Text style={styles.mealPlanText}>Calories: {meal.macronutrients.calories} kcal</Text>
-                            <Text style={styles.mealPlanText}>Protein: {meal.macronutrients.protein} g</Text>
-                            <Text style={styles.mealPlanText}>Fat: {meal.macronutrients.fat} g</Text>
-                            <Text style={styles.mealPlanText}>Carbs: {meal.macronutrients.carbs} g</Text>
-                            <Text style={styles.mealPlanText}>Time: {meal.mealTime}</Text>
+                            <Text style={[globalStyle.textRegular, styles.mealPlanText]}>{meal.title}</Text>
+                            <Text style={[globalStyle.textRegular, styles.mealPlanText]}>Calories: {meal.macronutrients.calories} kcal</Text>
+                            <Text style={[globalStyle.textRegular, styles.mealPlanText]}>Protein: {meal.macronutrients.protein} g</Text>
+                            <Text style={[globalStyle.textRegular, styles.mealPlanText]}>Fat: {meal.macronutrients.fat} g</Text>
+                            <Text style={[globalStyle.textRegular, styles.mealPlanText]}>Carbs: {meal.macronutrients.carbs} g</Text>
+                            <Text style={[globalStyle.textRegular, styles.mealPlanText]}>Time: {meal.mealTime}</Text>
 
                             <View style={styles.mealActions}>
                                 <TouchableOpacity onPress={() => handleEditMeal(meal, index, selectedDay)}>
@@ -174,20 +176,20 @@ const MealPlanScreen = () => {
                         </View>
                     ))
                 ) : (
-                    <Text style={styles.mealPlanText}>No meal plan available for {selectedDay}.</Text>
+                    <Text style={[globalStyle.textRegular, styles.mealPlanText]}>No meal plan available for {selectedDay}.</Text>
                 )}
             </View>
 
             <TouchableOpacity style={styles.addMealButton} onPress={() => navigation.navigate('RecipeScreen')}>
-                <Text style={styles.addMealButtonText}>Add a Meal Plan</Text>
+                <Text style={[globalStyle.textBold, styles.addMealButtonText]}>Add a Meal Plan</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.createMealButton} onPress={() => navigation.navigate('CustomMealPlanScreen')}>
-                <Text style={styles.createMealButtonText}>Add a Custom Meal Plan</Text>
+                <Text style={[globalStyle.textBold, styles.createMealButtonText]}>Add a Custom Meal Plan</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.settingButton} onPress={resetMealPlan}>
-                <Text style={styles.settingButtonText}>Reset Entire Meal Plan</Text>
+                <Text style={[globalStyle.textBold, styles.settingButtonText]}>Reset Entire Meal Plan</Text>
             </TouchableOpacity>
 
             <Modal
@@ -198,13 +200,13 @@ const MealPlanScreen = () => {
             >
                 <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
-                        <Text style={styles.modalText}>Are you sure you want to delete this meal?</Text>
+                        <Text style={[globalStyle.textRegular, styles.modalText]}>Are you sure you want to delete this meal?</Text>
                         <View style={styles.modalButtons}>
                             <TouchableOpacity onPress={deleteMeal} style={styles.modalButton}>
-                                <Text style={styles.modalButtonText}>Yes</Text>
+                                <Text style={[globalStyle.textBold, styles.modalButtonText]}>Yes</Text>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.modalButton}>
-                                <Text style={styles.modalButtonText}>No</Text>
+                                <Text style={[globalStyle.textBold, styles.modalButtonText]}>No</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -230,10 +232,9 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 24,
-        fontWeight: 'bold',
         textAlign: 'center',
         marginVertical: 16,
-        marginTop: 35,
+        marginTop: 40,
         color: '#fff', // White text
     },
     daySelector: {
@@ -244,7 +245,7 @@ const styles = StyleSheet.create({
     },
     dayButton: {
         backgroundColor: '#2C2C2C',
-        padding: 8,
+        padding: 6.1,
         borderRadius: 5,
         margin: 4,
         width: '12%',
@@ -252,11 +253,6 @@ const styles = StyleSheet.create({
     },
     selectedDay: {
         backgroundColor: '#9D4EDD',
-    },
-    dayButtonText: {
-        color: '#fff',
-        fontWeight: 'bold',
-        textAlign: 'center',
     },
     mealPlanOverview: {
         marginTop: 0,
@@ -270,7 +266,6 @@ const styles = StyleSheet.create({
     sectionTitle: {
         marginBottom: 10,
         fontSize: 24,
-        fontWeight: 'bold',
         color: '#ffffff',
     },
     mealPlanText: {
@@ -288,7 +283,6 @@ const styles = StyleSheet.create({
     addMealButtonText: {
         fontSize: 16,
         color: '#fff',
-        fontWeight: 'bold',
     },
     createMealButton: {
         backgroundColor: '#330099',
@@ -300,7 +294,6 @@ const styles = StyleSheet.create({
     createMealButtonText: {
         fontSize: 16,
         color: '#fff',
-        fontWeight: 'bold',
     },
     settingButton: {
         backgroundColor: 'crimson',
@@ -313,7 +306,6 @@ const styles = StyleSheet.create({
     settingButtonText: {
         fontSize: 16,
         color: '#fff',
-        fontWeight: 'bold',
     },
     mealActions: {
         flexDirection: 'row',
@@ -322,12 +314,10 @@ const styles = StyleSheet.create({
     },
     editText: {
         color: 'lightgreen',
-        fontWeight: 'bold',
         fontSize: 16,
     },
     deleteText: {
         color: '#FF5C5C',
-        fontWeight: 'bold',
         fontSize: 16
     },
     modalContainer: {
@@ -360,7 +350,6 @@ const styles = StyleSheet.create({
     },
     modalButtonText: {
         color: '#fff',
-        fontWeight: 'bold',
     },
 });
 

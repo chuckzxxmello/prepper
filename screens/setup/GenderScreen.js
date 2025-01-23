@@ -5,12 +5,18 @@ import CustomButton from '../../components/CustomButton';
 import { auth } from '../../config/firebase';
 import { getFirestore, doc, updateDoc } from 'firebase/firestore';
 import OptionSelector from '../../components/OptionSelector';
+import globalStyle from '../../constants/GlobalStyle'; // Import global font styles
 
 const db = getFirestore();
 
 const GenderScreen = ({ navigation, route }) => {
     const [selectedGender, setSelectedGender] = useState(null);
     const genders = ['male', 'female'];
+
+    // Capitalize function to be used for display
+    const capitalize = (str) => {
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    };
 
     const handleContinue = async () => {
         try {
@@ -31,12 +37,13 @@ const GenderScreen = ({ navigation, route }) => {
     return (
         <View style={styles.container}>
             <View style={styles.headerContainer}>
-                <Text style={styles.title}>What's Your Gender?</Text>
-                <Text style={styles.subtitle}>Select your biological gender</Text>
+                <Text style={[globalStyle.textBold, styles.header]}>What's Your Gender?</Text>
+                <Text style={[globalStyle.textRegular, styles.subtitle]}>Select your biological gender</Text>
             </View>
 
+            {/* Capitalize values on display */}
             <OptionSelector
-                options={genders}
+                options={genders.map(capitalize)} // This line handles the capitalization properly
                 selectedOption={selectedGender}
                 onSelect={setSelectedGender}
             />
@@ -58,20 +65,31 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: colors.background,
         padding: 20,
-    },
+	},
     headerContainer: {
         marginTop: 60,
         marginBottom: 40,
     },
+    header: {
+        fontSize: 30,  // Increased font size for prominence
+        color: colors.text, // White text for header
+        marginBottom: 10,  // Increased margin for more space
+    },
+    subHeader: {
+        marginVertical: 8,
+        fontSize: 22,
+        fontWeight: 'bold',
+        color: colors.textLight, // Lighter text for subheader
+    },
     title: {
         fontSize: 28,
-        fontWeight: 'bold',
         color: colors.primary,
         marginBottom: 10,
     },
     subtitle: {
-        fontSize: 16,
-        color: colors.text,
+        fontSize: 18,
+        color: colors.primary,
+        marginBottom: 10,
     },
     buttonContainer: {
         marginTop: 20,

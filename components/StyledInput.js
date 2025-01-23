@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { TextInput, StyleSheet } from 'react-native';
-import { colors } from '../constants/colors';
+import { TextInput, StyleSheet, TouchableOpacity, Text, View } from 'react-native';
+import { colors } from '../constants/colors'; // Import colors
 
 const StyledInput = ({
     placeholder,
@@ -9,25 +9,43 @@ const StyledInput = ({
     secureTextEntry,
     keyboardType = 'default',
     placeholderTextColor = colors.textLight, // Default placeholder text color
+    isPassword = false,  // To check if it's a password field
+    showPasswordToggle = false, // If the "show" toggle should be displayed
 }) => {
-    const [isFocused, setIsFocused] = useState(false);
+    const [isPasswordVisible, setIsPasswordVisible] = useState(false); // Password visibility state
+
+    // Toggle password visibility
+    const togglePasswordVisibility = () => {
+        setIsPasswordVisible(!isPasswordVisible);
+    };
 
     return (
-        <TextInput
-            style={[styles.input, isFocused && styles.inputFocused]}
-            placeholder={placeholder}
-            value={value}
-            onChangeText={onChangeText}
-            secureTextEntry={secureTextEntry}
-            keyboardType={keyboardType}
-            placeholderTextColor={placeholderTextColor} // Added placeholderTextColor
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
-        />
+        <View style={styles.inputContainer}>
+            <TextInput
+                style={[styles.input, isPasswordVisible && styles.inputFocused]}
+                placeholder={placeholder}
+                value={value}
+                onChangeText={onChangeText}
+                secureTextEntry={isPassword && !isPasswordVisible} // Toggle password visibility
+                keyboardType={keyboardType}
+                placeholderTextColor={placeholderTextColor}
+            />
+            
+            {isPassword && showPasswordToggle && (
+                <TouchableOpacity onPress={togglePasswordVisibility} style={styles.showHideContainer}>
+                    <Text style={styles.showText}>
+                        {isPasswordVisible ? 'Hide' : 'Show'}
+                    </Text>
+                </TouchableOpacity>
+            )}
+        </View>
     );
 };
 
 const styles = StyleSheet.create({
+    inputContainer: {
+        position: 'relative', // For positioning the "Show/Hide" text
+    },
     input: {
         height: 48,
         borderRadius: 5,
@@ -39,11 +57,21 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         paddingLeft: 16,
         width: '100%',
-        color: colors.textDark, // Ensures input text color matches the theme
+        color: colors.text, // Set text color to white
     },
     inputFocused: {
         borderColor: colors.primary,
         borderWidth: 2,
+    },
+    showHideContainer: {
+        position: 'absolute',
+        right: 18,
+        top: 22,
+    },
+    showText: {
+        color: colors.primary, // Purple color for "Show/Hide" text
+        fontSize: 16,
+        fontWeight: 'bold',
     },
 });
 

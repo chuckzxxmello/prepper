@@ -5,7 +5,6 @@ import {
     StyleSheet,
     TextInput,
     TouchableOpacity,
-    Dimensions,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -16,12 +15,12 @@ import globalStyle from '../../constants/GlobalStyle'; // Import global styles
 
 const MeScreen = () => {
     const [userData, setUserData] = useState({
-        goal: '',
-        age: '',
-        height: '',
-        weight: '',
-        gender: '',
-        activityLevel: '',
+        goal: '', //string
+        age: '', //number
+        height: '', //number
+        weight: '', //number
+        gender: '', //string
+        activityLevel: '', //string
     });
 
     const [selectedGoal, setSelectedGoal] = useState('');
@@ -29,35 +28,45 @@ const MeScreen = () => {
     const [selectedActivityLevel, setSelectedActivityLevel] = useState('');
     const navigation = useNavigation();
 
-    useEffect(() => {
-        const fetchUserData = async () => {
-            if (auth.currentUser) {
-                try {
-                    const userDoc = await getDoc(doc(db, 'userInfo', auth.currentUser.uid));
-                    if (userDoc.exists()) {
-                        const data = userDoc.data();
-                        setUserData({
-                            goal: data.goal || '',
-                            age: data.age || '',
-                            height: data.height || '',
-                            weight: data.weight || '',
-                            gender: data.gender || '',
-                            activityLevel: data.activityLevel || '',
-                        });
+	useEffect(() => {
+		const fetchUserData = async () => {
+			if (auth.currentUser) {
+				try {
+					console.log('Fetching user data...');
+					
+					const userDocRef = doc(db, 'userInfo', auth.currentUser.uid);
+					const userDoc = await getDoc(userDocRef);
 
-                        setSelectedGoal(mapGoalToUI(data.goal || 'gain'));
-                        setSelectedGender(data.gender || 'male');
-                        setSelectedActivityLevel(mapActivityLevelToUI(data.activityLevel || 'sedentary'));
-                    } else {
-                        console.log('No such document!');
-                    }
-                } catch (error) {
-                    console.error('Error fetching user data:', error);
-                }
-            }
-        };
-        fetchUserData();
-    }, []);
+					if (userDoc.exists()) {
+						const data = userDoc.data();
+						console.log('Fetched Data:', data); // Log the fetched data for debugging
+
+						setUserData({
+							goal: data.goal || '',
+							age: data.age ? String(data.age) : '', // Ensure it's always a string
+							height: data.height ? String(data.height) : '', // Ensure it's always a string
+							weight: data.weight ? String(data.weight) : '', // Ensure it's always a string
+							gender: data.gender || '',
+							activityLevel: data.activityLevel || '',
+						});
+
+						// Set the UI-related state variables based on fetched data
+						setSelectedGoal(mapGoalToUI(data.goal || 'gain'));
+						setSelectedGender(data.gender || 'male');
+						setSelectedActivityLevel(mapActivityLevelToUI(data.activityLevel || 'sedentary'));
+					} else {
+						console.log('No such document!');
+					}
+				} catch (error) {
+					console.error('Error fetching user data:', error);
+				}
+			} else {
+				console.log('No authenticated user');
+			}
+		};
+
+		fetchUserData();
+	}, []);
 
     const mapGoalToUI = (goal) => {
         switch (goal) {
@@ -96,37 +105,45 @@ const MeScreen = () => {
         }));
     };
 
-    const handleSave = async () => {
-        if (auth.currentUser) {
-            const goalValue = selectedGoal === 'Lose Weight' ? 'lose' : selectedGoal === 'Maintain Weight' ? 'maintain' : 'gain';
+	const handleSave = async () => {
+		if (auth.currentUser) {
+			// Convert age, height, and weight to numbers before saving
+			const ageValue = Number(userData.age);  // Ensure it's a number
+			const heightValue = Number(userData.height);  // Ensure it's a number
+			const weightValue = Number(userData.weight);  // Ensure it's a number
 
-            const activityMap = {
-                Sedentary: 'sedentary',
-                Light: 'light',
-                Moderate: 'moderate',
-                Active: 'active',
-                VeryActive: 'veryActive',
-            };
+			// Map goal to its Firebase representation
+			const goalValue = selectedGoal === 'Lose Weight' ? 'lose' :
+							  selectedGoal === 'Maintain Weight' ? 'maintain' :
+							  'gain';
 
-            const activityLevelValue = activityMap[selectedActivityLevel] || '';
+			// Map activity level to its Firebase representation
+			const activityMap = {
+				Sedentary: 'sedentary',
+				Light: 'light',
+				Moderate: 'moderate',
+				Active: 'active',
+				VeryActive: 'veryActive',
+			};
+			const activityLevelValue = activityMap[selectedActivityLevel] || '';
 
-            try {
-                const userDocRef = doc(db, 'userInfo', auth.currentUser.uid);
-                await updateDoc(userDocRef, {
-                    goal: goalValue,
-                    age: userData.age,
-                    height: userData.height,
-                    weight: userData.weight,
-                    gender: selectedGender,
-                    activityLevel: activityLevelValue,
-                });
-                console.log('User data updated successfully');
-                navigation.goBack();
-            } catch (error) {
-                console.error('Error updating user data:', error);
-            }
-        }
-    };
+			try {
+				const userDocRef = doc(db, 'userInfo', auth.currentUser.uid);
+				await updateDoc(userDocRef, {
+					goal: goalValue,
+					age: ageValue,
+					height: heightValue,
+					weight: weightValue,
+					gender: selectedGender,
+					activityLevel: activityLevelValue,
+				});
+				console.log('User data updated successfully');
+				navigation.goBack();
+			} catch (error) {
+				console.error('Error updating user data:', error);
+			}
+		}
+	};
 
     return (
         <View style={styles.container}>
@@ -151,18 +168,21 @@ const MeScreen = () => {
                     style={[globalStyle.textRegular, styles.input]}
                     value={userData.age}
                     onChangeText={(value) => handleInputChange('age', value)}
+                    keyboardType="numeric"
                 />
                 <Text style={[globalStyle.textSemiBold, styles.subHeader]}>Height (cm)</Text>
                 <TextInput
                     style={[globalStyle.textRegular, styles.input]}
                     value={userData.height}
                     onChangeText={(value) => handleInputChange('height', value)}
+                    keyboardType="numeric"
                 />
                 <Text style={[globalStyle.textSemiBold, styles.subHeader]}>Weight (kg)</Text>
                 <TextInput
                     style={[globalStyle.textRegular, styles.input]}
                     value={userData.weight}
                     onChangeText={(value) => handleInputChange('weight', value)}
+                    keyboardType="numeric"
                 />
                 <Text style={[globalStyle.textSemiBold, styles.subHeader]}>Gender</Text>
                 <RNPickerSelect
@@ -187,9 +207,13 @@ const MeScreen = () => {
                     value={selectedActivityLevel || 'Sedentary'}
                     style={pickerSelectStyles}
                 />
+				
+				
                 <TouchableOpacity style={styles.calculateButton} onPress={handleSave}>
                     <Text style={[globalStyle.textSemiBold, styles.calculateButtonText]}>Save</Text>
                 </TouchableOpacity>
+				
+				
             </View>
         </View>
     );
@@ -202,14 +226,17 @@ const styles = StyleSheet.create({
         backgroundColor: '#1E1E1E',
     },
     backButton: {
+		marginTop: 40,
         position: 'absolute',
         top: 25,
         left: 16,
         zIndex: 1,
     },
     header: {
+		marginTop: 40,
         fontSize: 24,
         textAlign: 'center',
+
         marginBottom: 30,
         color: '#FFFFFF',
     },
