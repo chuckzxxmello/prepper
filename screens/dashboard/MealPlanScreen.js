@@ -5,11 +5,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { auth, db } from '../../config/firebase';
 import { doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
 import moment from 'moment';
-import globalStyle from '../../constants/GlobalStyle';
+import globalStyle from '../../constants/GlobalStyle'; // Import Global Styles
 
 const MealPlanScreen = () => {
     const [userData, setUserData] = useState(null);
-    const [selectedDay, setSelectedDay] = useState('M');
+    const [selectedDay, setSelectedDay] = useState(moment().format('dddd')); // Get current day (e.g., 'Monday')
     const [modalVisible, setModalVisible] = useState(false);
     const [mealToDelete, setMealToDelete] = useState(null);
     const navigation = useNavigation();
@@ -35,16 +35,6 @@ const MealPlanScreen = () => {
         fetchUserData();
     }, []);
 
-    // Full day names mapping
-    const fullDayNames = {
-        M: 'Monday',
-        T: 'Tuesday',
-        W: 'Wednesday',
-        Th: 'Thursday',
-        F: 'Friday',
-        St: 'Saturday',
-        Sn: 'Sunday',
-    };
 
     const calculateTotalCalories = (day) => {
         const mealsForDay = userData?.mealPlan?.filter(meal => meal.mealDay === day) || [];
@@ -69,7 +59,7 @@ const MealPlanScreen = () => {
     const deleteMeal = async () => {
         if (mealToDelete && mealToDelete.recipeId) {
             const recipeId = mealToDelete.recipeId;
-            const mealDay = selectedDay;
+            const mealDay = selectedDay; // Ensure selectedDay is available in this scope
             console.log('Deleting meal with ID:', recipeId, 'on day:', mealDay);
     
             try {
@@ -80,7 +70,7 @@ const MealPlanScreen = () => {
                     const userData = userDoc.data();
                     const updatedMealPlan = userData.mealPlan.filter(meal => 
                         !(meal.recipeId === recipeId && meal.mealDay === mealDay)
-                    );
+                    ); // Remove only the specific meal
     
                     await setDoc(userDocRef, { mealPlan: updatedMealPlan }, { merge: true });
     
@@ -102,7 +92,7 @@ const MealPlanScreen = () => {
     };
 
     const handleDeleteMealClick = (meal) => {
-        console.log('Meal selected for deletion:', meal);
+        console.log('Meal selected for deletion:', meal);  // Log the meal object
         if (meal && meal.recipeId) {
             setMealToDelete(meal);
             setModalVisible(true);
@@ -152,7 +142,7 @@ const MealPlanScreen = () => {
             <Text style={[globalStyle.textBold, styles.title]}>My Meal Plans</Text>
 
             <View style={styles.daySelector}>
-                {['M', 'T', 'W', 'Th', 'F', 'St', 'Sn'].map((day) => (
+                {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => (
                     <TouchableOpacity
                         key={day}
                         style={[styles.dayButton, selectedDay === day && styles.selectedDay]}
@@ -164,10 +154,7 @@ const MealPlanScreen = () => {
             </View>
 
             <View style={styles.mealPlanOverview}>
-                {/* Display full name of the day */}
-                <Text style={[globalStyle.textBold, styles.sectionTitle]}>
-                    Meals for {fullDayNames[selectedDay]}
-                </Text>
+                <Text style={[globalStyle.textBold, styles.sectionTitle]}>Meals for {selectedDay}</Text>
                 {userData?.mealPlan?.filter(meal => meal.mealDay === selectedDay)?.length ? (
                     userData.mealPlan.filter(meal => meal.mealDay === selectedDay).map((meal, index) => (
                         <View key={index} style={styles.mealPane}>
@@ -189,7 +176,7 @@ const MealPlanScreen = () => {
                         </View>
                     ))
                 ) : (
-                    <Text style={[globalStyle.textRegular, styles.mealPlanText]}>No meal plan available for {fullDayNames[selectedDay]}.</Text>
+                    <Text style={[globalStyle.textRegular, styles.mealPlanText]}>No meal plan available for {selectedDay}.</Text>
                 )}
             </View>
 
@@ -234,7 +221,7 @@ const { width } = Dimensions.get('window');
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#1E1E1E',
+        backgroundColor: '#1E1E1E', // Dark background
         padding: 16,
     },
     backButton: {
@@ -252,7 +239,6 @@ const styles = StyleSheet.create({
     },
     daySelector: {
         flexDirection: 'row',
-		marginHorizontal: 14,
         flexWrap: 'wrap',
         justifyContent: 'center',
         marginBottom: 20,
