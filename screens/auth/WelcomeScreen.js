@@ -23,7 +23,7 @@ const WelcomeScreen = ({ navigation }) => {
 
       <View style={styles.buttonContainer}>
         <CustomButton
-          title="Let him cook!"
+          title="Start"
           onPress={() => navigation.navigate('Login')}
           type="primary"
         />
