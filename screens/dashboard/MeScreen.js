@@ -208,11 +208,11 @@ const MeScreen = () => {
                     style={pickerSelectStyles}
                 />
 				
-				{/* 
+				
                 <TouchableOpacity style={styles.calculateButton} onPress={handleSave}>
                     <Text style={[globalStyle.textSemiBold, styles.calculateButtonText]}>Save</Text>
                 </TouchableOpacity>
-				*/}
+				
 				
             </View>
         </View>
