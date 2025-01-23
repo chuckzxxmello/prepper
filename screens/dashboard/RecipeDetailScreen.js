@@ -278,6 +278,7 @@ const RecipeDetailScreen = ({ route }) => {
                             selectedValue={mealDay}
                             onValueChange={(itemValue) => setMealDay(itemValue)}
                             style={styles.modalInput}
+                            dropdownIconColor="#ffffff" // Ensures the arrow color is white
                         >
                             <Picker.Item label="Monday" value="Monday" />
                             <Picker.Item label="Tuesday" value="Tuesday" />
@@ -294,11 +295,13 @@ const RecipeDetailScreen = ({ route }) => {
                             selectedValue={mealType}
                             onValueChange={(itemValue) => setMealType(itemValue)}
                             style={styles.modalInput}
+                            dropdownIconColor="#ffffff" // Ensures the arrow color is white
                         >
                             <Picker.Item label="Breakfast" value="breakfast" />
                             <Picker.Item label="Lunch" value="lunch" />
                             <Picker.Item label="Dinner" value="dinner" />
                         </Picker>
+
 
                         {/* Add to Meal Plan Button */}
                         <CustomButton
@@ -416,13 +419,13 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     buttonContainer: {
-        marginHorizontal: 16, 
-        marginBottom: 12, 
-        width: '70%', 
-        alignSelf: 'center', 
+        marginHorizontal: 16,
+        marginBottom: 12,
+        width: '70%',
+        alignSelf: 'center',
     },
     button: {
-        paddingVertical: 10, 
+        paddingVertical: 10,
         borderRadius: 8,
         alignItems: 'center',
         justifyContent: 'center',

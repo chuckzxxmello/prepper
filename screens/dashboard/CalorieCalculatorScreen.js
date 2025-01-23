@@ -5,11 +5,9 @@ import {
     StyleSheet,
     TextInput,
     TouchableOpacity,
-    Dimensions,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors } from '../../constants/colors';
 import globalStyle from '../../constants/GlobalStyle'; // Import global styles
 
 const CalorieCalculatorScreen = () => {
@@ -40,20 +38,22 @@ const CalorieCalculatorScreen = () => {
                 <Ionicons name="arrow-back" size={24} color="#fff" />
             </TouchableOpacity>
 
-            {/* Header with spacing */}
-            <Text style={[globalStyle.textBold, styles.header]}>Calorie Calculator</Text>
-			
-			{/* Result */}
-            {calories && (
-                <Text style={[globalStyle.textBold, styles.result]}>
-                    Daily Calorie Intake: {calories.toFixed(2)} Cal
-                </Text>
+            {/* Header */}
+            <Text style={[globalStyle.textSemiBold, styles.header]}>Calorie Calculator</Text>
+
+            {/* Result Section */}
+            {calories !== null && (
+                <View style={styles.resultContainer}>
+                    <Text style={[globalStyle.textBold, styles.resultText]}>
+                        Daily Calorie Intake: {calories.toFixed(2)} Cal
+                    </Text>
+                </View>
             )}
 
             {/* Set Physical State Section */}
-            <Text style={[globalStyle.textBold, styles.subHeader]}>Set Physical State</Text>
+            <Text style={[globalStyle.textSemiBold, styles.subHeader]}>Set Physical State</Text>
 
-            {/* Input fields */}
+            {/* Input Fields */}
             <TextInput
                 style={styles.input}
                 placeholder="Weight (kg)"
@@ -80,7 +80,7 @@ const CalorieCalculatorScreen = () => {
             />
 
             {/* Activity Level Section */}
-            <Text style={[globalStyle.textBold, styles.subHeader]}>Activity Level</Text>
+            <Text style={[globalStyle.textSemiBold, styles.subHeader]}>Activity Level</Text>
             {activityLevels.map((level) => (
                 <TouchableOpacity
                     key={level.value}
@@ -104,62 +104,66 @@ const CalorieCalculatorScreen = () => {
 
             {/* Calculate Button */}
             <TouchableOpacity style={styles.calculateButton} onPress={calculateCalories}>
-                <Text style={[globalStyle.textBold, styles.calculateButtonText]}>Calculate</Text>
+                <Text style={[globalStyle.textSemiBold, styles.calculateButtonText]}>Calculate</Text>
             </TouchableOpacity>
-			
         </View>
     );
 };
-
-const { width } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 20,
         backgroundColor: '#1E1E1E', // Dark background
-        marginTop: 40,
     },
     backButton: {
+        marginTop: 40,
         position: 'absolute',
         top: 25,
         left: 16,
         zIndex: 1,
     },
     header: {
+        marginTop: 40,
         fontSize: 24,
         textAlign: 'center',
-        marginBottom: 30,
-        color: '#FFFFFF', // White text for header
+        marginBottom: 20,
+        color: '#FFFFFF',
+    },
+    resultContainer: {
+        backgroundColor: '#2D2D2D',
+        padding: 15,
+        borderRadius: 10,
+        marginBottom: 20,
+    },
+    resultText: {
+        fontSize: 20,
+        color: '#fff',
+        textAlign: 'center',
     },
     subHeader: {
-        marginVertical: 8,
-        fontSize: 24,
-        textAlign: 'left',
+        marginVertical: 10,
+        fontSize: 18,
         color: '#ffffff',
     },
-    subtitle: {
-        fontSize: 16,
-        color: colors.primary,
-    },
     input: {
-        height: 40,
+        height: 50,
         borderColor: '#4a148c',
         borderWidth: 1,
-        marginBottom: 10,
-        paddingLeft: 8,
+        marginBottom: 15,
+        paddingHorizontal: 12,
         backgroundColor: '#2d2d2d',
         color: '#fff',
         borderRadius: 8,
     },
     activityLevelButton: {
         backgroundColor: '#4a148c',
-        padding: 12,
+        padding: 14,
         borderRadius: 8,
-        marginBottom: 10,
+        marginBottom: 12,
     },
     selectedActivityLevelButton: {
-        backgroundColor: '#9D4EDD', // Purple background for selected activity level
+        backgroundColor: '#9D4EDD', // Highlight selected button
     },
     activityLevelText: {
         color: '#fff',
@@ -167,26 +171,18 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     selectedActivityLevelText: {
-        color: '#fff', // White text for selected activity level
+        color: '#fff', // Keep text white for selected button
     },
     calculateButton: {
-        backgroundColor: '#6a1b9a', // Purple background for calculate button
+        backgroundColor: '#6a1b9a',
         padding: 16,
         borderRadius: 8,
         alignItems: 'center',
-        marginVertical: 16,
+        marginVertical: 20,
     },
     calculateButtonText: {
-        color: '#fff', // White text for calculate button
-        fontWeight: 'bold',
         fontSize: 16,
-    },
-    result: {
-        fontSize: 20,
-        textAlign: 'center',
-        marginTop: 16,
-        color: colors.primary,
-		marginBottom: 20,
+        color: '#fff',
     },
 });
 

@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
     },
     dayButton: {
         backgroundColor: '#2C2C2C',
-        padding: 8,
+        padding: 6.1,
         borderRadius: 5,
         margin: 4,
         width: '12%',

@@ -67,8 +67,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#121212', // Dark background for a sleek look
-        padding: 20,
-        borderRadius: 12, // Soft rounded corners for the container
+        padding: 28,
         shadowColor: '#000', 
         shadowOffset: { width: 0, height: 4 }, 
         shadowOpacity: 0.25, 
@@ -76,13 +75,13 @@ const styles = StyleSheet.create({
         elevation: 5, // Adding shadow for a floating effect
     },
     header: {
-        fontSize: 26, // Larger font size for headers
+        fontSize: 20, // Larger font size for headers
         color: '#9D4EDD', // Purple header text
         marginBottom: 12, // Slightly reduced space between sections
         letterSpacing: 1, // Spacing out the letters for a more elegant feel
     },
     description: {
-        fontSize: 18, // Larger text for descriptions
+        fontSize: 16, // Larger text for descriptions
         color: '#E0E0E0', // Lighter gray for better readability
         textAlign: 'justify',
         marginBottom: 32, // More breathing room after paragraphs
@@ -90,8 +89,8 @@ const styles = StyleSheet.create({
     },
     button: {
         backgroundColor: '#9D4EDD', // Purple background for button
-        paddingVertical: 12,
-        paddingHorizontal: 24,
+        paddingVertical: 5,
+        paddingHorizontal: 20,
         borderRadius: 10,
         marginBottom: 16,
     },
