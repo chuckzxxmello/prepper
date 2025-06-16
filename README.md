@@ -1,4 +1,4 @@
-# Prepper App
+# Prepper App - IF WILL UPDATE, USE FLUTTER + FIREBASE
 
 Prepper is a meal planning and nutrition tracking app designed to simplify your daily food management. The app allows users to create personalized meal plans, manage recipes, track calories and nutrients, and generate shopping lists based on their meal plans.
 
