@@ -45,6 +45,7 @@ Prepper is a meal planning and nutrition tracking app designed to simplify your 
    npx expo start --clear
    ```
 4. Open the app on your device with Expo Go or an emulator.
+- Download/Install Expo SDK 52 App from the official expo website.
 - Use Expo Go app on your physical device, then scan the QR code or manual input of the expo link.
 
 ### Core Features
